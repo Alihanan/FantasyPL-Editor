@@ -1,7 +1,7 @@
-# FantasyPL-Editor
+# FantasyPL Editor
 
 ## Description
-Editor for a future fantasy game from a PL game studios. 
+Editor for a future fantasy game from Lenpartya's Workshop. 
 
 ## License
 Kakaya licensiya, my zhe kommi
