@@ -10,7 +10,7 @@ Kakaya licensiya, my zhe kommi
 
 Kalibrov Dmitrii&nbsp; &nbsp;  &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;  (Game Design) - [VK](https://vk.com/kal1brov)
 
-Alikhan Anuarbekov&nbsp; &nbsp;  &nbsp; &nbsp; (Coding Dev)&nbsp;&nbsp;&nbsp;- [VK](https://vk.com/kal1brov)
+Alikhan Anuarbekov&nbsp; &nbsp;  &nbsp; &nbsp; (Coding Dev)&nbsp;&nbsp;&nbsp;- [VK](https://vk.com/alihanan)
 
 Lenpartya's Workshop  &nbsp;   (Organization)&nbsp;&nbsp;- [VK](https://vk.com/lenpindie)
 
