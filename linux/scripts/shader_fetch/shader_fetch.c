@@ -1,0 +1,570 @@
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+#include <stdbool.h>
+#include <GLFW/glfw3.h>
+#include <unistd.h>
+
+#define MAX_NUM_UBOS 10
+#define MAX_NUM_VARS 20
+#define NUM_ALIGN_TYPES 6
+
+const char* HEADER_TO_CREATE = "./vulkan/v_global_renderer/v_pipeline/v_shader/v_dyn_shader.tmp";
+char* SHADER_NAME;
+const char* CURRENT_FILE_EXT;
+FILE* header_file;
+
+typedef struct structUVariable
+{
+    const char* type;
+    unsigned int align;
+    bool isGLM;
+    char* type_vulkan;
+} UTypeVariable;
+
+typedef struct
+{
+    int location;
+    char name[20];
+    UTypeVariable var;
+} Variable;
+
+typedef struct structUBO
+{
+    int binding;
+    char name[20];
+    Variable variables[20];
+    uint32_t num_vars;
+} UBO;
+
+
+const UTypeVariable align_vars[NUM_ALIGN_TYPES] = {
+    {"vec2", 8, true, "VK_FORMAT_R32G32_SFLOAT"},
+    {"vec3", 16, true, "VK_FORMAT_R32G32B32_SFLOAT"},
+    {"vec4", 16, true, "VK_FORMAT_R32G32B32A32_SFLOAT"},
+    {"mat4", 16, true, "VK_FORMAT_R32G32B32A32_SFLOAT"},
+    {"float", 4, false, "VK_FORMAT_R32_SFLOAT"},
+    {"int", 4, false, "VK_FORMAT_R32_SINT"},
+};
+UTypeVariable getTypeFromString(const char* str)
+{
+    for(int i = 0; i < NUM_ALIGN_TYPES; i++)
+    {
+        if(strcmp(str, align_vars[i].type) == 0)
+        {
+            return align_vars[i];
+        }
+    }
+    exit(-1);
+}   
+
+Variable ALL_IN_VARIABLES[MAX_NUM_VARS];
+int IN_VAR_INDEX = 0;
+
+UBO ALL_UBOS[MAX_NUM_UBOS];
+int UBO_INDEX = 0;
+
+void resetUBOs()
+{
+    for(int i = 0; i < MAX_NUM_UBOS; i++)
+    {
+        ALL_UBOS[i].num_vars = 0;
+    }
+}
+
+void dieMessage(const char* msg)
+{
+    printf("%s\n", msg);
+    exit(-1);
+}
+
+char* extractName(const char* fullname)
+{
+    size_t size = strlen(fullname);
+
+    // skip *.frag or similar
+    while(size > 0)
+    {
+        char c = fullname[size-1];
+        if(c == '.')
+        {
+            break;
+        }
+        size--;
+    }
+
+    size_t end = size - 1;
+    
+    while(size > 0)
+    {
+        char c = fullname[size - 1];
+        if(c == '/')
+        {
+            break;
+        }
+        size--;
+    }
+    size_t start = size;
+
+    char* ret = (char*)malloc(sizeof(char) * (end - start + 1));
+    for(size_t i = start; i < end; i++)
+    {
+        ret[i - start] = fullname[i];
+    }
+    ret[end - start] = '\0';
+    return ret;
+}
+
+
+void writeSingleVar(Variable var, bool isAlign)
+{
+    if(isAlign)
+        fprintf(header_file, "alignas(%d) ", var.var.align);
+    fprintf(header_file, "%s%s %s;\n",            
+            var.var.isGLM ? "glm::" : "", 
+            var.var.type, var.name);
+}
+
+void writeInVariables()
+{
+    // Sort by location
+    for(int i = 0; i < IN_VAR_INDEX; i++)
+    {
+        for(int j = 0; j < (IN_VAR_INDEX - i - 1); j++)
+        {
+            Variable var2 = ALL_IN_VARIABLES[j + 1];
+            Variable var1 = ALL_IN_VARIABLES[j];
+            if(var1.location > var2.location)
+            {
+                ALL_IN_VARIABLES[j+1] = var1;
+                ALL_IN_VARIABLES[j] = var2;
+            }
+        }
+    }
+    
+    // Write struct
+    fprintf(header_file, "        struct %s_Vertex {\n", SHADER_NAME);
+    for(int i = 0; i < IN_VAR_INDEX; i++)
+    {
+        Variable var = ALL_IN_VARIABLES[i];
+
+        fprintf(header_file, "            ");
+        writeSingleVar(var, false);
+    }
+    fprintf(header_file, "        };\n");
+
+    // Binding desc
+    fprintf(header_file, ""
+"        const std::vector<VkVertexInputBindingDescription> binding = \n"   
+"           {{0, sizeof(%s_Vertex), VK_VERTEX_INPUT_RATE_VERTEX}};\n\n" 
+"        const std::vector<VkVertexInputBindingDescription>&\n"
+"            getBindingDescriptions()\n"
+"        {\n"
+"            return binding;\n", SHADER_NAME);
+    fprintf(header_file, ""
+"        }\n"
+    );
+
+    // Attrib desc
+    fprintf(header_file, ""
+"        const std::vector<VkVertexInputAttributeDescription> attrib = {\n"
+    );
+    for(int i = 0; i < IN_VAR_INDEX; i++)
+    {
+        Variable var = ALL_IN_VARIABLES[i];
+        fprintf(header_file, "                "
+        "{%d, 0, %s, offsetof(%s_Vertex, %s)},\n", 
+                    var.location, var.var.type_vulkan, SHADER_NAME, var.name);
+    }
+
+    fprintf(header_file, ""
+"        };\n"
+"        const std::vector<VkVertexInputAttributeDescription>&\n"
+"            getAttributeDescriptions()\n"
+"        {\n"
+"            return attrib;\n"
+"        }\n");  
+}
+
+void writeUBOS()
+{
+    for(int i = 0; i < UBO_INDEX; i++)
+    {
+        // Add struct type
+        UBO* ubo = &ALL_UBOS[i];
+        fprintf(header_file, "        "
+            "struct %s_%s_ubo{\n", SHADER_NAME, ubo->name);
+
+        for(int v = 0; v < ubo->num_vars; v++)
+        {
+            fprintf(header_file, "            ");
+            writeSingleVar(ubo->variables[v], true);
+        }
+        fprintf(header_file, "        "
+            "};\n");
+
+
+        // getters + setters for struct
+        fprintf(header_file, "        "
+                "%s_%s_ubo %s_ubo;\n\n", SHADER_NAME, ubo->name, ubo->name);
+
+        fprintf(header_file, "        "
+                "%s_%s_ubo get_ubo_%s()\n"
+                "        "
+                " { return this->%s_ubo; }\n\n",
+                SHADER_NAME, ubo->name, ubo->name, ubo->name);
+
+        fprintf(header_file, "        "
+                "void set_ubo_%s(%s_%s_ubo in) \n"
+                "        "
+                "{ this->%s_ubo = in; } // TODO add pushing to pipeline etc \n",
+                ubo->name, SHADER_NAME, ubo->name, ubo->name);
+
+    }
+    
+    // TODO
+    fprintf(header_file, "\n        "
+                "void pushUBOS() {} \n\n");
+    fprintf(header_file, "        "
+                "void allocateUBOS() {} \n\n");
+
+
+}
+
+
+bool insideUBO = false;
+
+void processStartUBO(char** statement, int index)
+{
+    printf("UBO: %s {\n", statement[7]);
+    strncpy(ALL_UBOS[UBO_INDEX].name, statement[7], 20);
+    ALL_UBOS[UBO_INDEX].binding = atoi(statement[4]);
+}
+void processAddVarUBO(char** statement, int index)
+{
+    uint32_t current = ALL_UBOS[UBO_INDEX].num_vars;
+    ALL_UBOS[UBO_INDEX].variables[current].var = getTypeFromString(statement[0]);
+    strncpy(ALL_UBOS[UBO_INDEX].variables[current].name, statement[1], 20);
+    ALL_UBOS[UBO_INDEX].num_vars++;
+    printf("%s %s\n", statement[0], statement[1]);
+}
+void processEndUBO(char** statement, int index)
+{
+    printf("}\n");
+    UBO_INDEX++;
+}
+void processVariable(char** statement, int index)
+{
+    int location = atoi(statement[4]);
+    char* in_out = statement[6];
+    if(strcmp(in_out, "out") == 0) return; // out vars are useless
+    char* type = statement[7];
+    char* name = statement[8];
+
+    printf("     >>>>>> adding variable: loc=%d, %s %s\n", location, type, name);
+
+    ALL_IN_VARIABLES[IN_VAR_INDEX].location = location;
+    strncpy(ALL_IN_VARIABLES[IN_VAR_INDEX].name, name, 20);
+    ALL_IN_VARIABLES[IN_VAR_INDEX].var = getTypeFromString(type);
+    IN_VAR_INDEX++;
+}
+
+void processStatement(char** statement, int index)
+{
+    if(strcmp(statement[0], "}") == 0)
+    {
+        if(insideUBO)
+            processEndUBO(statement, index);
+        insideUBO = false;
+        return;
+    }
+    else if(
+        (strcmp(statement[2], "binding") == 0 )&&
+        (strcmp(statement[6], "uniform") == 0) &&
+        (strcmp(statement[8], "{") == 0))
+    {
+        insideUBO = true;
+        processStartUBO(statement, index);
+    }
+    else if(!insideUBO && strcmp(statement[0], "layout") != 0)
+    {
+        return;
+    }
+    else if(insideUBO)
+    {
+        processAddVarUBO(statement, index);
+    }
+    else if(strcmp(CURRENT_FILE_EXT, ".vert") != 0)
+    {
+        return;
+    }
+    else if(strcmp(statement[2], "location") == 0)
+    {
+        // process variable
+        processVariable(statement, index);
+    }
+    
+
+
+}
+
+void clearStatement(char** statement, int index)
+{
+    for(int i = 0; i < index; i++)
+    {
+        //printf("[%s],", statement[i]);
+        free(statement[i]);
+    }   
+    //printf("\n");
+}
+
+/**
+ *  Working with extracting statements from files
+ */
+void fileReadUntilNewline(FILE* f)
+{
+    char c;
+    while(true){
+        c = fgetc(f);
+        if(c == '\n' || c == EOF)
+            break;
+    }
+}
+void fileReadUntilBigCommentEnd(FILE* f)
+{
+    char curr;
+    char prevCurr = 0;
+    while(true){
+        curr = fgetc(f);
+        if(curr == EOF)
+            break;
+        if(curr == '/' && prevCurr == '*')
+        {
+            break;;
+        }
+        prevCurr = curr;
+    }
+}
+char prevBreaker = EOF;
+
+char* readWord(FILE* f)
+{
+    char* word = (char*)malloc(sizeof(char) * 100);
+    char current;
+    int index = 0;
+
+    bool toBreak = false;
+    while(true)
+    {
+        if(prevBreaker != EOF)
+        {
+            word[0] = prevBreaker;
+            prevBreaker = EOF;
+            index++;
+            break;
+        }
+        if(toBreak) break;
+
+        current = fgetc(f);
+
+        if(current == EOF)
+        {
+            if(index == 0)
+            {
+                free(word);
+                return NULL;
+            }
+            break;          
+        }
+        if(index >= 1 && word[index-1] == '/')
+        {
+            index = 0;
+            if(current == '*')
+                fileReadUntilBigCommentEnd(f);
+            else if(current == '/')
+                fileReadUntilNewline(f);
+            continue;
+        }
+
+
+        if(current == ' ' || current == '\n')
+        {
+            if(index == 0) continue;
+            break;
+        }
+        if( current == '{' || current == ';' || current == '=' ||
+            current == '}' || current == ')' || current == '(')
+        {          
+            if(index == 0) toBreak = true;
+            else{          
+                prevBreaker = current;     
+                break;
+            }           
+        }
+
+        word[index] = current;
+        index++;
+    }
+    word[index] = '\0';
+    return word;
+}
+
+bool checkIfMain(char** statement)
+{
+    bool ret1 = (strcmp(statement[0], "void") == 0);
+    ret1 = ret1 && (strcmp(statement[1], "main") == 0);
+    ret1 = ret1 && (strcmp(statement[2], "(") == 0);
+    ret1 = ret1 && (strcmp(statement[3], ")") == 0);
+    ret1 = ret1 && (strcmp(statement[4], "{") == 0);
+
+    return ret1;
+}
+
+bool pushStatement(char** statement, int* index)
+{
+    if(*index == 5)
+    {
+        bool ret = checkIfMain(statement);
+        if(ret) return true;
+    }
+
+    processStatement(statement, *index);
+    clearStatement(statement, *index);    
+    *index = 0;
+    return false;
+} 
+
+
+void readShader(const char* file)
+{
+    size_t size = strlen(file);
+    const char* format = (file + size - 5);
+    CURRENT_FILE_EXT = format;
+
+    //bool isVertex = (strcmp(format, ".vert") == 0);
+
+    FILE* shader_file = fopen(file, "r");
+
+    char** statement = (char**)malloc(sizeof(char*) * 100);
+    int index = 0;
+
+    while(true)
+    {
+        // Read a word
+        char* word = readWord(shader_file);
+        
+        // if NULL -> EOF encountered
+        if(word == NULL){
+            pushStatement(statement, &index);
+            printf("EOF!\n");
+            break;
+        } 
+
+        // if #version -> first word -> just read until the end
+        if(strcmp(word, "#version") == 0){
+            fileReadUntilNewline(shader_file);
+            free(word);
+            continue;
+        }
+
+        // save word to current statement
+        statement[index] = word;
+        index++;
+
+        if(strcmp(word, "}") == 0 || strcmp(word, "{") == 0 || strcmp(word, ";") == 0)
+        {
+            // recursion
+            bool ret = pushStatement(statement, &index);
+            if(ret) break;
+        }
+
+       
+    }
+
+    fclose(shader_file);
+}
+
+/**
+ *  CONSTANT STRING INSERTION + CLASS DECLARATIONS
+ * 
+*/
+void createHeader()
+{
+    if(access(HEADER_TO_CREATE, F_OK) == 0)
+    {
+        header_file = fopen(HEADER_TO_CREATE, "a"); // "a"       
+
+        return;
+    }
+
+    header_file = fopen(HEADER_TO_CREATE, "w"); // "a" 
+    fprintf(header_file, "#pragma once\n");
+    fprintf(header_file, "#include \"va_shader.h\"\n\n\n");
+}
+void startProtectedHeaderClass()
+{
+    fprintf(header_file, "  protected:\n");
+}
+void closeHeader()
+{
+    fclose(header_file);
+}
+void beginHeaderClass(int argc, char** argv)
+{
+    fprintf(header_file, "// Dynamically generated from shaders:\n//    ");
+    for(int i = 1; i < argc; i++)
+    {
+        fprintf(header_file, "%s ", argv[i]);
+    }
+    
+    fprintf(header_file, "\n");
+    fprintf(header_file, "namespace PL{\n");
+    fprintf(header_file, "    class v_%s_shader : public va_shader\n", SHADER_NAME);
+    fprintf(header_file, "    {\n");
+    fprintf(header_file, "    public:\n");
+    fprintf(header_file, "        v_%s_shader(VkDevice& device)\n", SHADER_NAME);
+    fprintf(header_file, "            : va_shader({\n            ");
+    for(int i = 1; i < argc; i++)
+    {
+        fprintf(header_file, "\"%s\",", argv[i]);
+    }
+    fprintf(header_file, "\n            }, device)\n");
+    fprintf(header_file, "        {}\n");
+    fprintf(header_file, "        ~v_%s_shader() {}\n", SHADER_NAME);
+    
+}
+void endHeaderClass()
+{
+    fprintf(header_file, "    };\n");
+    fprintf(header_file, "}\n");
+}
+
+
+/**
+ *   Main function 
+*/
+int main(int argc, char* argv[])
+{
+    printf("Given shader files:%d\n", argc-1);
+    if(argc < 3)
+    {
+        dieMessage("Not enough shader name given! Should be at least 2 -> vert + frag");
+    }
+    resetUBOs();
+
+    createHeader();
+    SHADER_NAME = extractName(argv[1]);
+    beginHeaderClass(argc, &argv[0]);
+    for(int i = 1; i < argc; i++)
+    {
+        printf("%s\n", argv[i]);     
+        readShader(argv[i]);      
+    }
+    writeInVariables();
+    writeUBOS();
+    //startProtectedHeaderClass();
+    endHeaderClass();
+    closeHeader();
+
+    return 0;
+}

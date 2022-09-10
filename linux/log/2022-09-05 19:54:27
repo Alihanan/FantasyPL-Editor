@@ -1,0 +1,9 @@
+[INFO] GLFW extensions needed:
+[INFO] 	VK_KHR_surface
+[INFO] 	VK_KHR_xcb_surface
+[INFO] [Extensions] All needed extensions are supported! 3 enabled in total!
+[INFO] [Layers] All needed layers are supported! 0 enabled in total!
+[INFO] Window: 640x320 created!
+[INFO] Ext: VK_KHR_swapchain is available!
+(VK_KHR_swapchain)
+[INFO] Window [Fantasy Editor PL] destroyed
