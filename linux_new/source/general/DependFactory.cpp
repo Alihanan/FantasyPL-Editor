@@ -5,6 +5,7 @@
 #include "../../include/vulkan/vApplication.h"
 #include "../../include/vulkan/vPhysicalDeviceHandler.h"
 #include "../../include/vulkan/vDevice.h"
+#include "../../include/vulkan/vRenderer.h"
 #include "../../include/math/algorithms.h"
 
 namespace PL
@@ -45,6 +46,10 @@ namespace PL
         else if(uid == vDevice::_DEP_ID)
         {
             toAdd = new vDevice();
+        }
+        else if(uid == vRenderer::_DEP_ID)
+        {
+            toAdd = new vRenderer();
         }
         else{
             throw std::runtime_error("Trying to create non-existing dependent object");
@@ -138,7 +143,4 @@ namespace PL
 
     DependFactory::~DependFactory()
     {}
-
-
-
 }

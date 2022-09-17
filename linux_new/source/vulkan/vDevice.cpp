@@ -8,6 +8,11 @@ namespace PL
 
     }
 
+    vPhysicalDeviceHandler::ReadyToUseDevice* vDevice::GetReadyDevice()
+    {
+        return this->device;
+    }
+
     void vDevice::Initialize()
     {
         this->physicalDeviceHandler->SetHighPrerequisities();

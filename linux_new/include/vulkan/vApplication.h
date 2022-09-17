@@ -5,7 +5,7 @@
 #include "../io/logger.h"
 #include "vWindow.h"
 #include "vDevice.h"
-
+#include "vRenderer.h"
 
 namespace PL
 {
@@ -15,7 +15,7 @@ namespace PL
         // IDependent
         inline const static std::string _DEP_ID = "vApplication";
         inline const static std::vector<std::string> _DEP_NEEDED_DEPS = {
-            vWindow::_DEP_ID, vDevice::_DEP_ID
+            vWindow::_DEP_ID, vDevice::_DEP_ID, vRenderer::_DEP_ID
         };
         std::vector<std::string> GetNeededDependencies()
         {
@@ -35,7 +35,8 @@ namespace PL
         void ReceiveContext(std::vector<std::vector<IDependent*>> context)
         {          
             this->ReceiveWindows(context[0]);
-            this->device = static_cast<vDevice*>(context[0][0]);
+            this->device = static_cast<vDevice*>(context[1][0]);
+            this->renderer = static_cast<vRenderer*>(context[2][0]);
             this->Initialize();
         }
         void UpdateContext(std::vector<std::vector<IDependent*>> context)
@@ -62,6 +63,8 @@ namespace PL
     protected:
         std::vector<vWindow*> windows;
         vDevice* device;
+        vRenderer* renderer;
+
         void Initialize();
 
         inline static const LoggerType LOGGER_TYPE = (LOGGER_TYPE_STDOUT);

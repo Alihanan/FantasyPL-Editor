@@ -2,7 +2,7 @@ SHELL = /bin/sh
 
 # C++ compiler
 CXX=g++
-CXXFLAGS=-Wall -pipe -std=c++17 -fPIC
+CXXFLAGS=-Wall -pipe -std=c++17
 LDFLAGS=$(shell pkg-config --libs vulkan) $(shell pkg-config --libs glfw3) -lpthread -L$(VULKAN_SDK)/lib `pkg-config --static --libs glfw3`
 #SRC=$(wildcard *.cpp)
 
@@ -47,17 +47,17 @@ OUT=app
 
 # Define calls to make
 .PHONY: all debug release run clean app
-all: debug
+all: debug clean_others
 
 debug:   CXXFLAGS += -ggdb
 debug:   CCFLAGS += -g
 release: CXXFLAGS += -O2 -DNDEBUG
 debug release: application
 
-application: $(OUT) 
-shaders: $(SHADEROBJ) header
-header: $(DYN_HEADERS) scripts
-scripts: $(OUT_SCRIPT)
+application: $(OUT) clean_others
+shaders: $(SHADEROBJ) header clean_others
+header: $(DYN_HEADERS) scripts clean_others
+scripts: $(OUT_SCRIPT) clean_others
 
 
 # Dependencies
@@ -89,5 +89,9 @@ $(DYN_HEADERS): $(OUT_SCRIPT)
 run: all
 	./$(OUT)
 
-clean:
-	rm -f $(OBJ) $(SHADEROBJ) $(OUT) $(OBJ_SCRIPT) $(OUT_SCRIPT) $(DYN_HEADERS) $(TMP_HEADERS)
+clean: clean_others clean_exe
+
+clean_others:
+	rm -f $(OBJ) $(SHADEROBJ) $(OBJ_SCRIPT) $(OUT_SCRIPT) $(DYN_HEADERS) $(TMP_HEADERS)
+clean_exe:
+	rm -f $(OUT) 

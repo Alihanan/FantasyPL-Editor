@@ -56,6 +56,8 @@ namespace PL
         static void MainAllWindowGLFWTick();
 
         bool MainShouldClose();
+        
+        VkExtent2D GetPixelExtent();
 
         VkSurfaceKHR& GetKHRSurface() { return this->khrSurface; }
 

@@ -41,6 +41,18 @@ namespace PL
         return ret;
     }
 
+    VkExtent2D vWindow::GetPixelExtent()
+    {
+        int width, height;
+        glfwGetFramebufferSize(this->glfwWindow, &width, &height);
+
+        VkExtent2D actualExtent = {
+            static_cast<uint32_t>(width),
+            static_cast<uint32_t>(height)
+        };
+        return actualExtent;
+    }
+
     void vWindow::CallbackFramebufferResize(GLFWwindow* window, int width, int height)
     {
         auto win = reinterpret_cast<vWindow*>(glfwGetWindowUserPointer(window));
