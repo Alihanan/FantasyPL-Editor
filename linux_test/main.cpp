@@ -1,9 +1,11 @@
-#define NDEBUG
-
 #include "vulkan/vulkanapp.h"
 
 
-int main() {
+
+
+
+
+int main2() {
     try {
         PL::VulkanApp* vapp = new PL::VulkanApp();
         vapp->initializeVulkan("Fantasy Editor PL");

@@ -67,8 +67,8 @@ class HelloTriangleApplication {
 public:
     void run() {
         initWindow();
-        initVulkan();
-        mainLoop();
+        //initVulkan();
+        //mainLoop();
         cleanup();
     }
 
@@ -952,6 +952,12 @@ private:
 };
 
 int main() {
+    glfwInit();
+
+    glfwWindowHint(GLFW_CLIENT_API, GLFW_NO_API);
+    glfwTerminate();
+    exit(-1);
+
     HelloTriangleApplication app;
 
     try {
