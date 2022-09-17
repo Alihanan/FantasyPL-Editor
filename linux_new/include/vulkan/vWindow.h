@@ -24,29 +24,29 @@ namespace PL
         : windowExtent({INITIAL_WIDTH, INITIAL_HEIGHT})
         {}
         
-        virtual std::vector<std::string> GetNeededDependencies()
+        std::vector<std::string> GetNeededDependencies()
         {
             return this->_DEP_NEEDED_DEPS;
         }
 
-        virtual void ReceiveContext(std::vector<std::vector<IDependent*>> context)
+        void ReceiveContext(std::vector<std::vector<IDependent*>> context)
         {
             this->currentInstance = dynamic_cast<vInstance*>(context[0][0]); 
             this->windowName = this->currentInstance->GetName();
             this->Initialize();
         }
 
-        virtual void UpdateContext(std::vector<std::vector<IDependent*>> context)
+        void UpdateContext(std::vector<std::vector<IDependent*>> context)
         {
 
         }
 
-        virtual bool IsSingleton()
+        bool IsSingleton()
         {
             return false;
         }
 
-        virtual std::string GetDependencyID()
+        std::string GetDependencyID()
         {
             return this->_DEP_ID;
         }
@@ -57,7 +57,7 @@ namespace PL
 
         bool MainShouldClose();
 
-        VkSurfaceKHR& GetKHRSurface();
+        VkSurfaceKHR& GetKHRSurface() { return this->khrSurface; }
 
     protected:
         vInstance* currentInstance;

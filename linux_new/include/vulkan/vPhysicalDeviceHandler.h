@@ -29,6 +29,8 @@ namespace PL
 
             std::optional<uint32_t> graphicsFamily;
             std::optional<uint32_t> presentFamily;
+
+            VkPhysicalDeviceMemoryProperties memoryProperties;
         };
 
         // IDependent
@@ -38,29 +40,32 @@ namespace PL
         };
 
         vPhysicalDeviceHandler()
-        {}
+        {
+
+        }
         
-        virtual std::vector<std::string> GetNeededDependencies()
+        std::vector<std::string> GetNeededDependencies()
         {
             return this->_DEP_NEEDED_DEPS;
         }
 
-        virtual void ReceiveContext(std::vector<std::vector<IDependent*>> context)
-        {this->Initialize();}
-        
-        virtual void UpdateContext(std::vector<std::vector<IDependent*>> context)
+        void ReceiveContext(std::vector<std::vector<IDependent*>> context)
         {
             this->window = static_cast<vWindow*>(context[0][0]);
             this->instance = static_cast<vInstance*>(context[1][0]);
             this->Initialize();
         }
+        
+        void UpdateContext(std::vector<std::vector<IDependent*>> context)
+        {          
+        }
 
-        virtual bool IsSingleton()
+        bool IsSingleton()
         {
             return true;
         }
 
-        virtual std::string GetDependencyID()
+        std::string GetDependencyID()
         {
             return this->_DEP_ID;
         }
@@ -91,6 +96,8 @@ namespace PL
             VkPhysicalDeviceFeatures deviceFeatures;
 
             std::vector<VkExtensionProperties> availableExtensions;
+
+            VkPhysicalDeviceMemoryProperties memoryProperties;
 
             bool isCompleteQueueuFamily() {
                 return graphicsFamily.has_value() && presentFamily.has_value();

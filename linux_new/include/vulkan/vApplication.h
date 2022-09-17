@@ -1,7 +1,10 @@
 #pragma once
 
+#include "../general/IUncopiable.h"
+#include "../general/IDependent.h"
 #include "../io/logger.h"
 #include "vWindow.h"
+#include "vDevice.h"
 
 
 namespace PL
@@ -12,9 +15,9 @@ namespace PL
         // IDependent
         inline const static std::string _DEP_ID = "vApplication";
         inline const static std::vector<std::string> _DEP_NEEDED_DEPS = {
-            vWindow::_DEP_ID
+            vWindow::_DEP_ID, vDevice::_DEP_ID
         };
-        virtual std::vector<std::string> GetNeededDependencies()
+        std::vector<std::string> GetNeededDependencies()
         {
             return this->_DEP_NEEDED_DEPS;
         }
@@ -29,22 +32,23 @@ namespace PL
             }
         }
 
-        virtual void ReceiveContext(std::vector<std::vector<IDependent*>> context)
+        void ReceiveContext(std::vector<std::vector<IDependent*>> context)
         {          
             this->ReceiveWindows(context[0]);
+            this->device = static_cast<vDevice*>(context[0][0]);
             this->Initialize();
         }
-        virtual void UpdateContext(std::vector<std::vector<IDependent*>> context)
+        void UpdateContext(std::vector<std::vector<IDependent*>> context)
         {
             this->ReceiveWindows(context[0]);
         }
         
-        virtual bool IsSingleton()
+        bool IsSingleton()
         {
             return true;
         }
 
-        virtual std::string GetDependencyID()
+        std::string GetDependencyID()
         {
             return this->_DEP_ID;
         }
@@ -57,6 +61,7 @@ namespace PL
 
     protected:
         std::vector<vWindow*> windows;
+        vDevice* device;
         void Initialize();
 
         inline static const LoggerType LOGGER_TYPE = (LOGGER_TYPE_STDOUT);

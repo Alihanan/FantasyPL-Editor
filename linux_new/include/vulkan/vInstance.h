@@ -20,25 +20,25 @@ namespace PL
         : appName(DEFAULT_APP_NAME)
         {}
         
-        virtual std::vector<std::string> GetNeededDependencies()
+        std::vector<std::string> GetNeededDependencies()
         {
             return this->_DEP_NEEDED_DEPS;
         }
 
-        virtual void ReceiveContext(std::vector<std::vector<IDependent*>> context)
+        void ReceiveContext(std::vector<std::vector<IDependent*>> context)
         {this->Initialize();}
         
-        virtual void UpdateContext(std::vector<std::vector<IDependent*>> context)
+        void UpdateContext(std::vector<std::vector<IDependent*>> context)
         {
 
         }
 
-        virtual bool IsSingleton()
+        bool IsSingleton()
         {
             return true;
         }
 
-        virtual std::string GetDependencyID()
+        std::string GetDependencyID()
         {
             return this->_DEP_ID;
         }

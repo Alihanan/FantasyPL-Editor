@@ -50,7 +50,7 @@ namespace PL
         vDevice() {}
         ~vDevice();
         std::vector<VkPhysicalDevice>& GetAvailablePhysicalDevices();
-        
+        vPhysicalDeviceHandler::ReadyToUseDevice* GetReadyDevice();
 
     protected:
         void Initialize();        

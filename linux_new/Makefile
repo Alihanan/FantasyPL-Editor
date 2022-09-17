@@ -2,7 +2,7 @@ SHELL = /bin/sh
 
 # C++ compiler
 CXX=g++
-CXXFLAGS=-Wall -pipe -std=c++17
+CXXFLAGS=-Wall -pipe -std=c++17 -fPIC
 LDFLAGS=$(shell pkg-config --libs vulkan) $(shell pkg-config --libs glfw3) -lpthread -L$(VULKAN_SDK)/lib `pkg-config --static --libs glfw3`
 #SRC=$(wildcard *.cpp)
 
@@ -15,7 +15,7 @@ GLSLC=glslc
 GLSLFLAGS=
 
 # CPP files
-SRC=$(shell find $(SOURCEDIR) -maxdepth 5 -name '*.cpp' | grep -v scripts)
+SRC=$(shell find $(SOURCEDIR) -name '*.cpp' | grep -v scripts)
 OBJ=$(SRC:.cpp=.o)
 
 # dynamically_generated_headers

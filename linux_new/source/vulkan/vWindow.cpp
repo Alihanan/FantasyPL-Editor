@@ -1,5 +1,5 @@
 #include "../../include/vulkan/vWindow.h"
-#include "vApplication.h"
+#include "../../include/vulkan/vApplication.h"
 
 namespace PL
 {
@@ -27,8 +27,8 @@ namespace PL
             throw std::runtime_error("failed to create window surface!");
         }
 
-        Logger::GLOBAL_LOGGER << LOG_MSG_INFO << "Window [" << 
-                    this->windowName << "] destroyed" << std::endl;
+        vApplication::GLOBAL_LOGGER << LOG_MSG_INFO << "Window [" << 
+                    this->windowName << "] created" << std::endl;
     }
 
     void vWindow::MainAllWindowGLFWTick()

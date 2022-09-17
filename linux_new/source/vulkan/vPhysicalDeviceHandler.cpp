@@ -6,6 +6,11 @@
 
 namespace PL
 {
+    vPhysicalDeviceHandler::~vPhysicalDeviceHandler()
+    {
+
+    }
+    
     void vPhysicalDeviceHandler::Initialize()
     {
 
@@ -14,6 +19,10 @@ namespace PL
     vPhysicalDeviceHandler::ReadyToUseDevice* vPhysicalDeviceHandler::GenerateLogicalDevice()
     {
         this->PickPhysicalDevice();
+        if(this->currentPhysicalDeviceHandler == VK_NULL_HANDLE)
+        {
+            return nullptr;
+        }
         
         std::vector<VkDeviceQueueCreateInfo> queueCreateInfos;
         std::set<uint32_t> uniqueQueueFamilies = {
@@ -58,7 +67,7 @@ namespace PL
         vkGetDeviceQueue(ret->logicalDevice, 
                         currentPhysicalDeviceHandler->presentFamily.value(), 
                         0, &ret->presentQueue);        
-    
+
         ret->physicalDevice = currentPhysicalDeviceHandler->physicalDevice;
 
         ret->formats = currentPhysicalDeviceHandler->formats;
@@ -67,6 +76,8 @@ namespace PL
 
         ret->graphicsFamily = currentPhysicalDeviceHandler->graphicsFamily;
         ret->presentFamily = currentPhysicalDeviceHandler->presentFamily;
+
+        ret->memoryProperties = currentPhysicalDeviceHandler->memoryProperties;
 
         return ret;
     }
@@ -89,12 +100,6 @@ namespace PL
         allDevices.clear();
         allDevices.shrink_to_fit();
         delete &allDevices;
-
-        if(this->currentPhysicalDeviceHandler == VK_NULL_HANDLE)
-        {
-            vApplication::GLOBAL_LOGGER << LOG_MSG_ERROR << "No suitable GPU found!" << std::endl;
-            throw new std::runtime_error("failed to find a suitable GPU!");
-        }
     }
 
 
@@ -128,6 +133,8 @@ namespace PL
         this->setProperties(device, *ret);
         this->setKHRsettings(device, *ret);
         this->setSupportedExtensions(device, *ret);
+
+        return ret;
     }
 
     void vPhysicalDeviceHandler::setQueueFamilies(VkPhysicalDevice& device, Handler& handler)
@@ -167,6 +174,7 @@ namespace PL
     {
         vkGetPhysicalDeviceProperties(device, &handler.deviceProperties);
         vkGetPhysicalDeviceFeatures(device, &handler.deviceFeatures);
+        vkGetPhysicalDeviceMemoryProperties(device, &handler.memoryProperties);
     }
     void vPhysicalDeviceHandler::setKHRsettings(VkPhysicalDevice& device, Handler& handler)
     {
@@ -195,6 +203,8 @@ namespace PL
     {
         uint32_t extensionCount;
         vkEnumerateDeviceExtensionProperties(device, nullptr, &extensionCount, nullptr);
+        //handler.availableExtensions.resize(extensionCount);
+        handler.availableExtensions = std::vector<VkExtensionProperties>(extensionCount);
         vkEnumerateDeviceExtensionProperties(device, nullptr, &extensionCount, handler.availableExtensions.data());
     }
 
@@ -218,10 +228,13 @@ namespace PL
             obligatoryLayers.begin(), 
             obligatoryLayers.end());
 
-        for (const auto& extension : candidate->availableExtensions) {       
-            for(const auto& req : requiredExtensions)
+        for (const auto& extension : candidate->availableExtensions) {   
+            for(const auto& req : requiredExtensions) 
             {
-                if(strcmp(req, extension.extensionName) == 0)
+                std::string str1(req);
+                std::string str2(extension.extensionName);
+
+                if(str1 == str2)
                 {
                     std::string res_str = std::string(req);
                     requiredExtensions.erase(req);
@@ -229,7 +242,7 @@ namespace PL
                     vApplication::GLOBAL_LOGGER << LOG_MSG_INFO << 
                                 "Ext: " << res_str << " is available!\n";
                     vApplication::GLOBAL_LOGGER << 
-                                "(" << extension.extensionName << ")" << std::endl;
+                                "(" << str2 << ")" << std::endl;
                     break;
                 }
             }

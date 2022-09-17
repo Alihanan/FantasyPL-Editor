@@ -125,12 +125,13 @@ namespace PL
             return;
         }
 
+        /*
         auto curr = this->instanceTracker[dep->GetDependencyID()];
 
         for(auto inst : curr)
         {
             
-        }
+        }*/
 
         delete dep;
     }
