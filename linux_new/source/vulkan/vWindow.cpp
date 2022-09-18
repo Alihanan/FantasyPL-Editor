@@ -3,6 +3,8 @@
 
 namespace PL
 {
+    const std::string vWindow::_DEP_ID = IDependent::type(*(new vWindow()));
+
     vWindow::~vWindow()
     {
         vkDestroySurfaceKHR(this->currentInstance->GetInstance(), this->khrSurface, nullptr);

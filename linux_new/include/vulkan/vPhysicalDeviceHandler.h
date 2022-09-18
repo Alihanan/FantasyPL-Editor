@@ -34,7 +34,7 @@ namespace PL
         };
 
         // IDependent
-        inline const static std::string _DEP_ID = "vPhysicalDeviceHandler";
+        const static std::string _DEP_ID;
         inline const static std::vector<std::string> _DEP_NEEDED_DEPS = {
             vWindow::_DEP_ID, vInstance::_DEP_ID
         };

@@ -4,6 +4,8 @@
 
 namespace PL
 {   
+    const std::string vInstance::_DEP_ID = IDependent::type(*(new vInstance()));
+
     static void glfwErrorCallback(int code, const char* description);
 
 

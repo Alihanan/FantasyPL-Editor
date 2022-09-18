@@ -6,6 +6,8 @@
 
 namespace PL
 {
+    const std::string vPhysicalDeviceHandler::_DEP_ID = IDependent::type(*(new vPhysicalDeviceHandler()));
+
     vPhysicalDeviceHandler::~vPhysicalDeviceHandler()
     {
 

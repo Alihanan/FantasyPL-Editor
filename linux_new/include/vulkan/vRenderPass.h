@@ -11,7 +11,7 @@ namespace PL
     public:
         vRenderPass() {}
         // IDependent
-        inline const static std::string _DEP_ID = "vRenderPass";
+        const static std::string _DEP_ID;
         inline const static std::vector<std::string> _DEP_NEEDED_DEPS = {
             vDevice::_DEP_ID
         };
@@ -33,11 +33,15 @@ namespace PL
             this->device = static_cast<vDevice*>(context[0][0]);
             this->Initialize();
         }
+        void UpdateContext(std::vector<std::vector<IDependent*>> context)
+        {
+            
+        }
 
 
         // Other members
         ~vRenderPass();
-        VkRenderPass& GetRenderPass();
+        VkRenderPass& GetRenderPass() { return this->renderPass; }
         VkSurfaceFormatKHR GetSwapFormat() { return this->swap_format; }
 
     protected:

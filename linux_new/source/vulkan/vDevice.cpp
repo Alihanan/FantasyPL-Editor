@@ -3,6 +3,8 @@
 
 namespace PL
 {
+    const std::string vDevice::_DEP_ID = IDependent::type(*(new vDevice())); 
+
     vDevice::~vDevice()
     {
 

@@ -3,6 +3,8 @@
 
 namespace PL
 {
+    const std::string vRenderer::_DEP_ID = IDependent::type(*(new vRenderer()));
+
     vRenderer::~vRenderer()
     {
 

@@ -2,30 +2,35 @@
 
 #include "../general/IUncopiable.h"
 #include "../general/IDependent.h"
-#include "vSwapchain.h"
+
+#include "vDevice.h"
+#include "vPipeConfig.h"
 
 namespace PL
 {
-    class vRenderer : public IUncopiable, public IDependent
+    class vPipeline : public IUncopiable, public IDependent
     {
     public:
         // IDependent
         const static std::string _DEP_ID;
         inline const static std::vector<std::string> _DEP_NEEDED_DEPS = {
-            vSwapchain::_DEP_ID
+            vDevice::_DEP_ID, vPipeConfig::_DEP_ID
         };
         std::vector<std::string> GetNeededDependencies()
         {
             return this->_DEP_NEEDED_DEPS;
         }
         void ReceiveContext(std::vector<std::vector<IDependent*>> context)
-        {                      
+        {          
+            
             this->Initialize();
         }
+
         void UpdateContext(std::vector<std::vector<IDependent*>> context)
         {
-            
+            auto ret = std::string(typeid(this).name());
         }
+        
         bool IsSingleton()
         {
             return true;
@@ -36,12 +41,13 @@ namespace PL
             return this->_DEP_ID;
         }
         
-        // Other members
-        ~vRenderer();
-        void MainRenderTick();
+        // Others
+        vPipeline() {}
+        ~vPipeline();
 
     protected:
         void Initialize();
+        
     };
 
 

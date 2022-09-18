@@ -5,6 +5,8 @@
 
 namespace PL
 {
+    const std::string vSwapchain::_DEP_ID = IDependent::type(*(new vSwapchain()));
+
     vSwapchain::~vSwapchain()
     {
 

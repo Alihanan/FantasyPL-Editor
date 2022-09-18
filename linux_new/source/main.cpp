@@ -2,11 +2,7 @@
 #include "../include/general/DependFactory.h"
 #include "../include/vulkan/vApplication.h"
 
-
-
 int main() {
-
-    
 
     try {
         PL::vApplication* app = static_cast<PL::vApplication*>(

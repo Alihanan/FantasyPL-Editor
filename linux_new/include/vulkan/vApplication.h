@@ -8,12 +8,12 @@
 #include "vRenderer.h"
 
 namespace PL
-{
+{   
     class vApplication : public IUncopiable, public IDependent
     {
     public:
         // IDependent
-        inline const static std::string _DEP_ID = "vApplication";
+        const static std::string _DEP_ID; 
         inline const static std::vector<std::string> _DEP_NEEDED_DEPS = {
             vWindow::_DEP_ID, vDevice::_DEP_ID, vRenderer::_DEP_ID
         };

@@ -6,7 +6,7 @@
 // 3D graphics
 #define GLFW_INCLUDE_VULKAN
 #include <GLFW/glfw3.h> 
-#define NDEBUG
+//#define NDEBUG
 
 namespace PL
 {
@@ -14,7 +14,7 @@ namespace PL
     {
     public:
         // IDependent
-        inline const static std::string _DEP_ID = "vInstance";
+        const static std::string _DEP_ID;
         inline const static std::vector<std::string> _DEP_NEEDED_DEPS = {};
 
         vInstance()

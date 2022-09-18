@@ -20,7 +20,7 @@ namespace PL
         vMemoryManager() {}
 
         // IDependent
-        inline const static std::string _DEP_ID = "vMemoryManager";
+        const static std::string _DEP_ID;
         inline const static std::vector<std::string> _DEP_NEEDED_DEPS = {
             vDevice::_DEP_ID
         };
