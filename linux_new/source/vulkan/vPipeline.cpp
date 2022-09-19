@@ -2,7 +2,7 @@
 
 namespace PL
 {
-    const std::string vPipeline::_DEP_ID = IDependent::type(*(new vPipeline()));//typeid(*(new vPipeline())).name();
+    const std::string vPipeline::_DEP_ID = IDependent::type(vPipeline());//typeid(*(new vPipeline())).name();
 
     vPipeline::~vPipeline()
     {

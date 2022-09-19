@@ -4,6 +4,8 @@
 #include "../general/IDependent.h"
 #include "vDevice.h"
 
+
+
 namespace PL
 {
     class vMemoryManager : public IUncopiable, public IDependent

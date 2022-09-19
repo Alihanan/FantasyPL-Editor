@@ -3,7 +3,7 @@
 
 namespace PL
 {
-    const std::string vPipeConfig::_DEP_ID = IDependent::type(*(new vPipeConfig()));
+    const std::string vPipeConfig::_DEP_ID = IDependent::type(vPipeConfig());
 
     vPipeConfig::~vPipeConfig()
     {

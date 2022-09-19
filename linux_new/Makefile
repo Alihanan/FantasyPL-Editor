@@ -2,7 +2,7 @@ SHELL = /bin/sh
 
 # C++ compiler
 CXX=g++
-CXXFLAGS=-Wall -pipe -std=c++17
+CXXFLAGS=-Wall -pipe -std=c++17 -Wpessimizing-move
 LDFLAGS=$(shell pkg-config --libs vulkan) $(shell pkg-config --libs glfw3) -lpthread -L$(VULKAN_SDK)/lib `pkg-config --static --libs glfw3`
 #SRC=$(wildcard *.cpp)
 
@@ -19,7 +19,7 @@ SRC=$(shell find $(SOURCEDIR) -name '*.cpp' | grep -v scripts)
 OBJ=$(SRC:.cpp=.o)
 
 # dynamically_generated_headers
-DYN_HEADERS=./vulkan/v_global_renderer/v_pipeline/v_shader/v_dyn_shader.h
+DYN_HEADERS=./include/vulkan/vDynamicShader.h
 TMP_HEADERS=$(DYN_HEADERS:.h=.tmp)
 
 # C files
@@ -54,9 +54,9 @@ debug:   CCFLAGS += -g
 release: CXXFLAGS += -O2 -DNDEBUG
 debug release: application
 
-application: $(OUT) clean_others
-shaders: $(SHADEROBJ) header clean_others
-header: $(DYN_HEADERS) scripts clean_others
+application: $(OUT) clean_others clean_scripts
+shaders: $(SHADEROBJ) header clean_others clean_scripts
+header: $(DYN_HEADERS) scripts clean_others clean_scripts
 scripts: $(OUT_SCRIPT) clean_others
 
 
@@ -89,9 +89,15 @@ $(DYN_HEADERS): $(OUT_SCRIPT)
 run: all
 	./$(OUT)
 
-clean: clean_others clean_exe
+clean: clean_others clean_exe clean_dynamic clean_scripts clean_shaders
 
+clean_dynamic:
+	rm -f $(DYN_HEADERS)
+clean_scripts:
+	rm -f $(OUT_SCRIPT) 
+clean_shaders:
+	rm -f $(SHADEROBJ)
 clean_others:
-	rm -f $(OBJ) $(SHADEROBJ) $(OBJ_SCRIPT) $(OUT_SCRIPT) $(DYN_HEADERS) $(TMP_HEADERS)
+	rm -f $(OBJ) $(OBJ_SCRIPT) $(TMP_HEADERS)
 clean_exe:
 	rm -f $(OUT) 

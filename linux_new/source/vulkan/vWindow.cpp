@@ -3,7 +3,7 @@
 
 namespace PL
 {
-    const std::string vWindow::_DEP_ID = IDependent::type(*(new vWindow()));
+    const std::string vWindow::_DEP_ID = IDependent::type(new vWindow());
 
     vWindow::~vWindow()
     {

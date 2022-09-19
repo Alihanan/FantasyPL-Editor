@@ -3,7 +3,7 @@
 
 namespace PL
 {
-    const std::string vMemoryManager::_DEP_ID = IDependent::type(*(new vMemoryManager()));
+    const std::string vMemoryManager::_DEP_ID = IDependent::type(vMemoryManager());
 
     vMemoryManager::~vMemoryManager()
     {

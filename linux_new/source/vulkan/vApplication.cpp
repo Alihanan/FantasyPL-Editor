@@ -7,7 +7,7 @@ namespace PL
         vApplication::LOGGER_VERBOSITY);
 
 
-    const std::string vApplication::_DEP_ID = IDependent::type(*(new vApplication()));    
+    const std::string vApplication::_DEP_ID = IDependent::type(vApplication());    
 
     void vApplication::Initialize()
     {

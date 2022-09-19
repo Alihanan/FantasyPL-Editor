@@ -2,7 +2,7 @@
 
 namespace PL
 {
-    const std::string vRenderPass::_DEP_ID = IDependent::type(*(new vRenderPass()));
+    const std::string vRenderPass::_DEP_ID = IDependent::type(vRenderPass());
 
     vRenderPass::~vRenderPass()
     {

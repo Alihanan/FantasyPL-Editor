@@ -4,7 +4,7 @@
 
 namespace PL
 {   
-    const std::string vInstance::_DEP_ID = IDependent::type(*(new vInstance()));
+    const std::string vInstance::_DEP_ID = IDependent::type(vInstance());
 
     static void glfwErrorCallback(int code, const char* description);
 
@@ -240,7 +240,7 @@ namespace PL
     void vInstance::DestroyDebugger()
     {
         if(!this->enableValidationLayers) return;
-        
+        if(this->debugMessenger == VK_NULL_HANDLE) return;
         DestroyDebugUtilsMessengerEXT(instance, debugMessenger, nullptr);
     }
 

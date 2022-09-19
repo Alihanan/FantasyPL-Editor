@@ -76,21 +76,23 @@ namespace PL
         void DestroyLayersAndExtensions();
 
         // layers
-        std::vector<const char*>* layers;
+        std::vector<const char*>* layers = nullptr;
         void InitLayers();
         void CheckAvailableLayers();
         void DestroyLayers() { 
-            delete layers; 
+            if(this->extensions != nullptr)
+                delete layers; 
         }
         // extensions
-        std::vector<const char*>* extensions;
+        std::vector<const char*>* extensions = nullptr;
         void InitExtensions();
         void CheckAvailableExtensions();
         void DestroyExtensions() { 
-            delete this->extensions; 
+            if(this->extensions != nullptr)
+                delete this->extensions; 
         }
         // debugger
-        VkDebugUtilsMessengerEXT debugMessenger;
+        VkDebugUtilsMessengerEXT debugMessenger = VK_NULL_HANDLE;
         void InitializeDebugger();
         void DestroyDebugger();
     };
