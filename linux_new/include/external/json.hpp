@@ -24,6 +24,10 @@ using std::is_convertible;
 using std::is_integral;
 using std::is_floating_point;
 
+/**
+ * https://github.com/nbsdx/SimpleJSON 
+ */
+
 namespace {
     string json_escape( const string &str ) {
         string output;
