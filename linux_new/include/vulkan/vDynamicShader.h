@@ -8,10 +8,10 @@ namespace PL{
     class vShader_normal : public vShader
     {
     public:
-        vShader_normal()
+        vShader_normal(vDevice* device)
             : vShader({
             "./shaders/normal.frag","./shaders/normal.vert",
-            })
+            }, device)
         {}
         ~vShader_normal() {}
         struct normal_Vertex {
@@ -60,10 +60,10 @@ namespace PL{
     class vShader_terrain : public vShader
     {
     public:
-        vShader_terrain()
+        vShader_terrain(vDevice* device)
             : vShader({
             "./shaders/terrain.vert","./shaders/terrain.frag","./shaders/terrain.tese",
-            })
+            }, device)
         {}
         ~vShader_terrain() {}
         struct terrain_Vertex {

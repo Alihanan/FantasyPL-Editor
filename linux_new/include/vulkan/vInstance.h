@@ -34,11 +34,6 @@ namespace PL
 
         }
 
-        bool IsSingleton()
-        {
-            return true;
-        }
-
         std::string GetDependencyID()
         {
             return this->_DEP_ID;

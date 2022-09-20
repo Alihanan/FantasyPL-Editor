@@ -1,20 +1,31 @@
 #pragma once
-
 #include "../general/IUncopiable.h"
 #include "../general/IDependent.h"
-
 #include "vDevice.h"
-#include "vRenderPass.h"
+#include "vShader.h"
+
+
+// 3D graphics
+#define GLFW_INCLUDE_VULKAN
+#include <GLFW/glfw3.h>
+#define GLM_FORCE_RADIANS
+#define GLM_FORCE_DEPTH_ZERO_TO_ONE
+#include <glm/glm.hpp>
+
+#include <map>
+#include <string>
 
 namespace PL
 {
-    class vPipeConfig : public IUncopiable, public IDependent
+    class vShaderManager : public IUncopiable, public IDependent
     {
     public:
+        vShaderManager() {}
+
         // IDependent
         const static std::string _DEP_ID;
         inline const static std::vector<std::string> _DEP_NEEDED_DEPS = {
-            vDevice::_DEP_ID, vRenderPass::_DEP_ID
+            vDevice::_DEP_ID
         };
         std::vector<std::string> GetNeededDependencies()
         {
@@ -22,7 +33,7 @@ namespace PL
         }
         void ReceiveContext(std::vector<std::vector<IDependent*>> context)
         {          
-            
+            this->device = static_cast<vDevice*>(context[0][0]);
             this->Initialize();
         }
 
@@ -35,15 +46,18 @@ namespace PL
         {
             return this->_DEP_ID;
         }
-        
-        // Others
-        vPipeConfig() {}
-        ~vPipeConfig();
+
+
+        // Other members
+        ~vShaderManager();
+
+        vShader* createShader(std::string shaderName);
 
     protected:
+        std::map<std::string, vShader*> allShaders;
+
+        vDevice* device;
         void Initialize();
-        
+
     };
-
-
 }

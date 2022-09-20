@@ -44,11 +44,6 @@ namespace PL
             this->ReceiveWindows(context[0]);
         }
         
-        bool IsSingleton()
-        {
-            return true;
-        }
-
         std::string GetDependencyID()
         {
             return this->_DEP_ID;

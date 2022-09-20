@@ -35,11 +35,6 @@ namespace PL
         {
             
         }
-        
-        bool IsSingleton()
-        {
-            return true;
-        }
 
         std::string GetDependencyID()
         {
@@ -50,6 +45,7 @@ namespace PL
         vDevice() {}
         ~vDevice();
         std::vector<VkPhysicalDevice>& GetAvailablePhysicalDevices();
+        uint32_t vDevice::findMemoryType(uint32_t typeFilter, VkMemoryPropertyFlags properties);
         vPhysicalDeviceHandler::ReadyToUseDevice* GetReadyDevice();
 
     protected:

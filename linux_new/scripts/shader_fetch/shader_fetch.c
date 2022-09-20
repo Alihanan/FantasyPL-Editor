@@ -544,13 +544,13 @@ void beginHeaderClass(int argc, char** argv)
     fprintf(header_file, "    class vShader_%s : public vShader\n", SHADER_NAME);
     fprintf(header_file, "    {\n");
     fprintf(header_file, "    public:\n");
-    fprintf(header_file, "        vShader_%s()\n", SHADER_NAME);
+    fprintf(header_file, "        vShader_%s(vDevice* device)\n", SHADER_NAME);
     fprintf(header_file, "            : vShader({\n            ");
     for(int i = 1; i < argc; i++)
     {
         fprintf(header_file, "\"%s\",", argv[i]);
     }
-    fprintf(header_file, "\n            })\n");
+    fprintf(header_file, "\n            }, device)\n");
     fprintf(header_file, "        {}\n");
     fprintf(header_file, "        ~vShader_%s() {}\n", SHADER_NAME);
     

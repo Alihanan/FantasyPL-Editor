@@ -4,26 +4,25 @@
 
 namespace PL
 {
-    const std::string vModel::_DEP_ID = IDependent::type(new vModel());//typeid(*(new vPipeline())).name();
 
     vModel::~vModel()
     {
-
+        this->memoryManager->FreeVBOandUBO(this);
     }
     
-    void vModel::Initialize()
+
+
+    void vModel::bind(VkCommandBuffer comBuf)
     {
-        
+        VkBuffer& buffer = this->memoryManager->GetOrAllocateVBOandUBO(this);
+        VkBuffer vertexBuffers[] = {buffer};
+        VkDeviceSize offsets[] = {0};
+        vkCmdBindVertexBuffers(comBuf, 0, 1, vertexBuffers, offsets);
     }
 
-    void vModel::bind()
+    void vModel::draw(VkCommandBuffer comBuf)
     {
-
-    }
-
-    void vModel::draw()
-    {
-        
+        vkCmdDraw(comBuf, this->num_vertices, 1, 0, 0);
     }
 
     void* vModel::processFile(std::string fileName)
@@ -44,7 +43,7 @@ namespace PL
 
             std::string type = j["type"].ToString();
             std::string srcFile = j["src"].ToString();
-
+            
             std::cout << type << ", " << srcFile << std::endl;
             return nullptr;
         }

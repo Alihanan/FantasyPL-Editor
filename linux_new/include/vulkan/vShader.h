@@ -1,7 +1,6 @@
 #pragma once
 
 #include "../general/IUncopiable.h"
-#include "../general/IDependent.h"
 #include "vDevice.h"
 
 // 3D graphics
@@ -17,12 +16,12 @@
 
 namespace PL
 {
-    class vShader : public IUncopiable, public IDependent
+    class vShader : public IUncopiable
     {
     public:
         inline static const std::string SHADER_SPIRV_FORMAT = ".spv";
         inline static const std::string SHADER_DEFAULT_PATH = "shaders/";
-        static vShader* createShader(std::string name);
+        static vShader* createShader(std::string name, vDevice* device);
 
         typedef struct _struct_shader_stages
         {
@@ -30,46 +29,12 @@ namespace PL
             const char* format;
             VkShaderStageFlagBits bit;
         } ShaderStage;
-
-        // IDependent
-        const static std::string _DEP_ID;
-        inline const static std::vector<std::string> _DEP_NEEDED_DEPS = {
-            vDevice::_DEP_ID
-        };
-        std::vector<std::string> GetNeededDependencies()
-        {
-            return this->_DEP_NEEDED_DEPS;
-        }
-        void ReceiveContext(std::vector<std::vector<IDependent*>> context)
-        {          
-            this->device = static_cast<vDevice*>(context[0][0]);
-            this->Initialize();
-        }
-
-        void UpdateContext(std::vector<std::vector<IDependent*>> context)
-        {
-            auto ret = std::string(typeid(this).name());
-        }
-        
-        bool IsSingleton()
-        {
-            return true;
-        }
-
-        std::string GetDependencyID()
-        {
-            return this->_DEP_ID;
-        }
-        
         // Others
-    protected:
-        vShader(std::vector<std::string> files);
+        vShader(std::vector<std::string> files, vDevice* device);
     public:
         ~vShader();
 
     protected:
-        void Initialize();
-
         vDevice* device = nullptr;
 
     private:

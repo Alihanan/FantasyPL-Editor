@@ -3,8 +3,10 @@
 #include "../general/IUncopiable.h"
 #include "../general/IDependent.h"
 #include "vDevice.h"
+#include "vModel.h"
 
-
+#include <map>
+#include <limits>
 
 namespace PL
 {
@@ -18,7 +20,12 @@ namespace PL
             uint32_t buf_size;
 
         };
-
+        struct Data
+        {
+            void* data;
+            uint32_t size;
+        };
+        
         vMemoryManager() {}
 
         // IDependent
@@ -40,26 +47,42 @@ namespace PL
         {
 
         }
-        
-        bool IsSingleton()
-        {
-            return true;
-        }
 
         std::string GetDependencyID()
         {
             return this->_DEP_ID;
         }
-    
+
+
+
         // Other members
         ~vMemoryManager();
-        void allocateBuffer();
-        void deleteBuffer();
+        void AllocateVBOandUBO(vModel* model);
+        VkBuffer& GetOrAllocateVBOandUBO(vModel* model);
+        void FreeVBOandUBO(vModel* model);
 
     protected:
         void Initialize();
-        vDevice* device;
+        Buffer* createBuffer(vModel* model);
 
+        
+        Data readData(std::string file);
+
+        Buffer* generateBuffer(void* data, uint32_t size);
+        void freeBuffer(Buffer* buf);
+        vDevice* device;
+        
+
+        struct MemoryCell
+        {   
+            Buffer* buffer = nullptr;
+            //uint32_t lastUsedTime = UINT_MAX;
+        };
+
+        uint32_t maxBufferCount = 0;
+        uint32_t maxMemorySize = 0;
+        //uint32_t currentTime = 0;
+        std::map<vModel*, MemoryCell*> currentMemory;
 
     };
 

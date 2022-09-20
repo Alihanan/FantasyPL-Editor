@@ -8,26 +8,19 @@
 
 namespace PL
 {
-    const std::string vShader::_DEP_ID = IDependent::type(vShader({}));
-
-     std::map<std::string, vShader*> vShader::ALL_SHADERS_USED = 
-                    std::map<std::string, vShader*>();
-
-    vShader::vShader(std::vector<std::string> files) 
+    vShader::vShader(std::vector<std::string> files, vDevice* device) 
     :   name(this->extractName((
             files.size() == 0) ? "" :  files[0].c_str()
             )),
+        device(device),
         files(files)
-    {}
+    {
+        this->readStages(this->files, this->device->GetReadyDevice()->logicalDevice);
+    }
 
     vShader::~vShader()
     {
         
-    }
-    
-    void vShader::Initialize()
-    {
-        this->readStages(this->files, this->device->GetReadyDevice()->logicalDevice);
     }
 
     char* vShader::extractName(const char* fullname)

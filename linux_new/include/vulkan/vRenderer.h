@@ -26,10 +26,6 @@ namespace PL
         {
             
         }
-        bool IsSingleton()
-        {
-            return true;
-        }
 
         std::string GetDependencyID()
         {

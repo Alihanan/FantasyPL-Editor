@@ -3,18 +3,21 @@
 #include "../general/IUncopiable.h"
 #include "../general/IDependent.h"
 
-#include "vDevice.h"
-#include "vRenderPass.h"
+#include "vMemoryManager.h"
+#include "vShaderManager.h"
+#include <optional>
+
 
 namespace PL
 {
-    class vPipeConfig : public IUncopiable, public IDependent
+    class vModelManager : public IUncopiable, public IDependent
     {
     public:
+        vModelManager() {}
         // IDependent
         const static std::string _DEP_ID;
         inline const static std::vector<std::string> _DEP_NEEDED_DEPS = {
-            vDevice::_DEP_ID, vRenderPass::_DEP_ID
+            vMemoryManager::_DEP_ID, vShaderManager::_DEP_ID
         };
         std::vector<std::string> GetNeededDependencies()
         {
@@ -22,28 +25,23 @@ namespace PL
         }
         void ReceiveContext(std::vector<std::vector<IDependent*>> context)
         {          
-            
-            this->Initialize();
+            this->memoryManager = static_cast<vMemoryManager*>(context[0][0]);
+            this->shaderManager = static_cast<vShaderManager*>(context[1][0]);
         }
 
         void UpdateContext(std::vector<std::vector<IDependent*>> context)
         {
-            auto ret = std::string(typeid(this).name());
+            
         }
 
         std::string GetDependencyID()
         {
             return this->_DEP_ID;
         }
-        
-        // Others
-        vPipeConfig() {}
-        ~vPipeConfig();
 
+        ~vModelManager();
     protected:
-        void Initialize();
-        
+        vMemoryManager* memoryManager;
+        vShaderManager* shaderManager;
     };
-
-
 }

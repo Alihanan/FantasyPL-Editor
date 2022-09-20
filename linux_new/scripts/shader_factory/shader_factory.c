@@ -126,7 +126,7 @@ void writeStaticFactory(FILE* f)
 
     fprintf(f, "namespace PL {\n");
     fprintf(f, "    "
-    "vShader* vShader::createShader(std::string name)\n");
+    "vShader* vShader::createShader(std::string name, vDevice* device)\n");
     fprintf(f, "    {\n");
     fprintf(f, "        if(vShader::ALL_SHADERS_USED.find(name) "
                 "!= vShader::ALL_SHADERS_USED.end())\n"
@@ -139,7 +139,7 @@ void writeStaticFactory(FILE* f)
     {
         ShaderName name = FOUND_SHADERS[i];
         fprintf(f, "        if(name == std::string(\"%s\")) {\n", name.name);
-        fprintf(f, "            vShader::ALL_SHADERS_USED[name] = new %s();\n", name.className);
+        fprintf(f, "            vShader::ALL_SHADERS_USED[name] = new %s(device);\n", name.className);
         fprintf(f, "        }\n\n");
     }
 

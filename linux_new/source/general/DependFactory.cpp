@@ -7,6 +7,8 @@
 #include "../../include/vulkan/vMemoryManager.h"
 #include "../../include/vulkan/vDevice.h"
 #include "../../include/vulkan/vRenderer.h"
+#include "../../include/vulkan/vShaderManager.h"
+#include "../../include/vulkan/vModelManager.h"
 #include "../../include/math/algorithms.h"
 
 namespace PL
@@ -52,25 +54,29 @@ namespace PL
         {
             toAdd = new vRenderer();
         }
+        else if(uid == vRenderPass::_DEP_ID)
+        {
+            toAdd = new vRenderPass();
+        }
+        else if(uid == vModelManager::_DEP_ID)
+        {
+            toAdd = new vModelManager();
+        }
         else{
             throw std::runtime_error("Trying to create non-existing dependent object");
         }
         return toAdd;
     }
 
-    std::vector<IDependent*> DependFactory::createOrGetInstance(std::string uid)
-    {
-        return this->createOrGetInstance(uid, false);
-    }
 
-    std::vector<IDependent*> DependFactory::createOrGetInstance(std::string uid, bool forceAdd)
+    std::vector<IDependent*> DependFactory::createOrGetInstance(std::string uid)
     {
         std::vector<IDependent*> ret;    
 
         if(this->instanceTracker.find(uid) != this->instanceTracker.end())
         {
             ret = this->instanceTracker[uid];
-            if(!forceAdd) return ret;
+            return ret;
         }
 
         auto toAdd = this->createAnythingFromID(uid);

@@ -30,11 +30,6 @@ namespace PL
         {
             auto ret = std::string(typeid(this).name());
         }
-        
-        bool IsSingleton()
-        {
-            return true;
-        }
 
         std::string GetDependencyID()
         {
