@@ -8,40 +8,14 @@
 
 namespace PL
 {
-    class vPipeline : public IUncopiable, public IDependent
+    class vPipeline 
     {
     public:
-        // IDependent
-        const static std::string _DEP_ID;
-        inline const static std::vector<std::string> _DEP_NEEDED_DEPS = {
-            vDevice::_DEP_ID, vPipeConfig::_DEP_ID
-        };
-        std::vector<std::string> GetNeededDependencies()
-        {
-            return this->_DEP_NEEDED_DEPS;
-        }
-        void ReceiveContext(std::vector<std::vector<IDependent*>> context)
-        {          
-            
-            this->Initialize();
-        }
-
-        void UpdateContext(std::vector<std::vector<IDependent*>> context)
-        {
-            auto ret = std::string(typeid(this).name());
-        }
-
-        std::string GetDependencyID()
-        {
-            return this->_DEP_ID;
-        }
-        
         // Others
-        vPipeline() {}
+        vPipeline(VkPipeline* pipe);
         ~vPipeline();
-
+        VkPipeline* graphicsPipeline;        
     protected:
-        void Initialize();
         
     };
 

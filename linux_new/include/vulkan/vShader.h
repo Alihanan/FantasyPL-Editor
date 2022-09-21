@@ -33,6 +33,18 @@ namespace PL
         vShader(std::vector<std::string> files, vDevice* device);
     public:
         ~vShader();
+        const std::vector<VkPipelineShaderStageCreateInfo>&
+            getShaderStages()
+        {
+            return this->stages;
+        }
+        std::string getShaderName() { return this->name; }
+
+        
+        virtual const std::vector<VkVertexInputBindingDescription>& 
+            getBindingDescriptions() = 0;  
+        virtual const std::vector<VkVertexInputAttributeDescription>& 
+            getAttributeDescriptions() = 0;
 
     protected:
         vDevice* device = nullptr;
