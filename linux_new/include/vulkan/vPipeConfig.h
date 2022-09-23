@@ -3,7 +3,7 @@
 #include "../general/IUncopiable.h"
 #include "../general/IDependent.h"
 #include "vDevice.h"
-#include "vRenderPass.h"
+#include "vSwapchain.h"
 #include "vPipeline.h"
 #include "vShaderManager.h"
 
@@ -40,7 +40,7 @@ namespace PL
         // IDependent
         const static std::string _DEP_ID;
         inline const static std::vector<std::string> _DEP_NEEDED_DEPS = {
-            vDevice::_DEP_ID, vRenderPass::_DEP_ID, vShaderManager::_DEP_ID
+            vDevice::_DEP_ID, vSwapchain::_DEP_ID, vShaderManager::_DEP_ID
         };
         std::vector<std::string> GetNeededDependencies()
         {
@@ -49,7 +49,7 @@ namespace PL
         void ReceiveContext(std::vector<std::vector<IDependent*>> context)
         {          
             this->device = static_cast<vDevice*>(context[0][0]);
-            this->renderPass = static_cast<vRenderPass*>(context[1][0]);
+            this->swapchain = static_cast<vSwapchain*>(context[1][0]);
             this->shaderManager = static_cast<vShaderManager*>(context[2][0]);
             this->Initialize();
         }
@@ -94,7 +94,7 @@ namespace PL
 
         vPipeConfigData data {};
         vDevice* device;
-        vRenderPass* renderPass;
+        vSwapchain* swapchain;
         vShaderManager* shaderManager;
 
         const std::vector<VkDynamicState> dynamicStates = {

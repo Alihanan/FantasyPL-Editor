@@ -27,7 +27,7 @@ namespace PL
     }
     void vPipeConfig::SetRenderPass()
     {
-        data.pipelineInfo.renderPass = this->renderPass->GetRenderPass();
+        data.pipelineInfo.renderPass = this->swapchain->GetRenderPass();
         data.pipelineInfo.subpass = 0;
         data.pipelineInfo.basePipelineHandle = VK_NULL_HANDLE; // Optional
         data.pipelineInfo.basePipelineIndex = -1; // Optional
@@ -150,7 +150,7 @@ namespace PL
         VK_NULL_HANDLE, 1, &data.pipelineInfo, nullptr, graphicsPipe) != VK_SUCCESS) {
             throw std::runtime_error("failed to create graphics pipeline!");
         }
-        vPipeline* ret = new vPipeline(graphicsPipe);
+        vPipeline* ret = new vPipeline(graphicsPipe, device);
         return ret;
     }
 

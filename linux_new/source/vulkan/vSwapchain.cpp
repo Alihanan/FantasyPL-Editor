@@ -9,15 +9,43 @@ namespace PL
 
     vSwapchain::~vSwapchain()
     {
-
+        DeleteSwapchain();
     }
 
     void vSwapchain::Initialize()
     {
         this->CreateSwapchain();
         this->CreateImages();
+        this->CreateFramebuffers();
     }
+    void vSwapchain::RecreateSwapchain()
+    {
+        this->oldSwapChain = this->swapChain;
+        this->swapChain = VK_NULL_HANDLE;
+        this->DeleteSwapchain();
+        this->Initialize(); 
+    }
+    void vSwapchain::DeleteSwapchain()
+    {
+        VkDevice& ldevice = this->device->GetReadyDevice()->logicalDevice;
 
+        for (auto imageView : swapChainImageViews) {
+            vkDestroyImageView(ldevice, imageView, nullptr);
+        }
+        swapChainImageViews.clear();
+
+        if(this->swapChain != nullptr)
+        {
+            vkDestroySwapchainKHR(ldevice, swapChain, nullptr);
+            swapChain = nullptr;
+        }       
+        
+        for (auto framebuffer : swapChainFramebuffers) {
+            vkDestroyFramebuffer(ldevice, 
+                                framebuffer, nullptr);
+        }     
+        swapChainFramebuffers.clear();
+    }
     void vSwapchain::CreateSwapchain()
     {
         auto readyDevice = this->device->GetReadyDevice();
@@ -103,6 +131,30 @@ namespace PL
             }
         }
         
+    }
+    void vSwapchain::CreateFramebuffers()
+    {
+        swapChainFramebuffers.resize(this->swapChainImageViews.size());
+
+        for (size_t i = 0; i < this->swapChainImageViews.size(); i++) {
+            VkImageView attachments[] = {
+                this->swapChainImageViews[i]
+            };
+
+            VkFramebufferCreateInfo framebufferInfo{};
+            framebufferInfo.sType = VK_STRUCTURE_TYPE_FRAMEBUFFER_CREATE_INFO;
+            framebufferInfo.renderPass = this->renderPass->GetRenderPass();
+            framebufferInfo.attachmentCount = 1;
+            framebufferInfo.pAttachments = attachments;
+            framebufferInfo.width = this->swap_extent.width;
+            framebufferInfo.height = this->swap_extent.height;
+            framebufferInfo.layers = 1;
+
+            if (vkCreateFramebuffer(this->device->GetReadyDevice()->logicalDevice,
+                    &framebufferInfo, nullptr, &swapChainFramebuffers[i]) != VK_SUCCESS) {
+                throw std::runtime_error("failed to create framebuffer!");
+            }
+        }
     }
 
     uint32_t vSwapchain::ChooseImageCount()

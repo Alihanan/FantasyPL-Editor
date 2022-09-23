@@ -4,7 +4,7 @@
 #include "../general/IDependent.h"
 
 #include "vMemoryManager.h"
-#include "vShaderManager.h"
+#include "vPipeConfig.h"
 #include <optional>
 
 
@@ -17,7 +17,7 @@ namespace PL
         // IDependent
         const static std::string _DEP_ID;
         inline const static std::vector<std::string> _DEP_NEEDED_DEPS = {
-            vMemoryManager::_DEP_ID, vShaderManager::_DEP_ID
+            vMemoryManager::_DEP_ID, vPipeConfig::_DEP_ID
         };
         std::vector<std::string> GetNeededDependencies()
         {
@@ -26,7 +26,8 @@ namespace PL
         void ReceiveContext(std::vector<std::vector<IDependent*>> context)
         {          
             this->memoryManager = static_cast<vMemoryManager*>(context[0][0]);
-            this->shaderManager = static_cast<vShaderManager*>(context[1][0]);
+            this->pipeConfig = static_cast<vPipeConfig*>(context[1][0]);
+
         }
 
         void UpdateContext(std::vector<std::vector<IDependent*>> context)
@@ -40,8 +41,13 @@ namespace PL
         }
 
         ~vModelManager();
+        void readAllModelsFromJSON(std::string jsonFileName);
+
     protected:
         vMemoryManager* memoryManager;
-        vShaderManager* shaderManager;
+        vPipeConfig* pipeConfig;
+
+        std::map<std::string, vPipeline*> createdPipelines;
+
     };
 }

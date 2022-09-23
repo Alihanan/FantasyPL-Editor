@@ -1,7 +1,6 @@
 #pragma once
 
 #include "../general/IUncopiable.h"
-#include "../general/IDependent.h"
 
 #include "vMemoryManager.h"
 #include "vShader.h"
@@ -10,7 +9,7 @@
 
 namespace PL
 {
-    class vModel : public IUncopiable, public IDependent
+    class vModel : public IUncopiable
     {
     public:       
         // Others
@@ -19,18 +18,20 @@ namespace PL
         {
             this->memoryManager->AllocateVBOandUBO(this);
         }
-        
+
+
         ~vModel();
         void bind(VkCommandBuffer comBuf);
         void draw(VkCommandBuffer comBuf);
 
         std::string GetSourceDataFileName() {return this->fileName; } 
 
+        vMemoryManager::Data vModel::processData();
+        
     protected:
         vMemoryManager* memoryManager;
         vShader* shader;
 
-        void *data = nullptr;
         uint32_t num_vertices = 0;
 
     private:
@@ -38,7 +39,7 @@ namespace PL
         std::string fileName;
 
 
-        void* generateGrid(uint32_t WIDTH, uint32_t HEIGH);
+        
     };
 
 

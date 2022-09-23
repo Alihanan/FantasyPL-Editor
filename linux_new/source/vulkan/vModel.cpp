@@ -25,34 +25,8 @@ namespace PL
         vkCmdDraw(comBuf, this->num_vertices, 1, 0, 0);
     }
 
-    void* vModel::processFile(std::string fileName)
+    vMemoryManager::Data vModel::processData()
     {
-        PJSON pjson = PseudoJson::readFile(fileName);
-
-        if(!pjson.hasKey("models")) 
-            throw std::runtime_error("Wrong JSON format for model definition!");
-
-        auto& models = pjson["models"];
-
-        for( auto &j : models.ArrayRange())
-        {
-            if(!j.hasKey("type") || !j.hasKey("src"))
-            {
-                throw std::runtime_error("Wrong JSON format for model definition!");
-            }
-
-            std::string type = j["type"].ToString();
-            std::string srcFile = j["src"].ToString();
-            
-            std::cout << type << ", " << srcFile << std::endl;
-            return nullptr;
-        }
-
-        return nullptr;
-    }
-
-    void* vModel::generateGrid(uint32_t WIDTH, uint32_t HEIGH)
-    {
-        return nullptr;
+        return {nullptr, 0};
     }
 }

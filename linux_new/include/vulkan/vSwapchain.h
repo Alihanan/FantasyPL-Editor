@@ -38,6 +38,10 @@ namespace PL
 
         // Other members
         ~vSwapchain();
+        size_t GetImageCount() {return this->swapChainImages.size();}
+        VkRenderPass& GetRenderPass() { return this->renderPass->GetRenderPass(); }
+        std::vector<VkFramebuffer>& GetFramebuffers() { return this->swapChainFramebuffers;}
+        VkExtent2D GetExtent() { return this->swap_extent; }
 
     protected:
         vDevice* device;
@@ -55,7 +59,11 @@ namespace PL
         VkSwapchainKHR swapChain = VK_NULL_HANDLE;
         VkSwapchainKHR oldSwapChain = VK_NULL_HANDLE;
         void CreateSwapchain();
+        void RecreateSwapchain();
+        void DeleteSwapchain();
 
+        std::vector<VkFramebuffer> swapChainFramebuffers;
+        void CreateFramebuffers();
         
         VkPresentModeKHR swap_presentMode;
         VkExtent2D swap_extent;
