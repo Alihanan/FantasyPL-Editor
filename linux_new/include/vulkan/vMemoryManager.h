@@ -3,13 +3,14 @@
 #include "../general/IUncopiable.h"
 #include "../general/IDependent.h"
 #include "vDevice.h"
-#include "vModel.h"
 
 #include <map>
 #include <limits>
 
 namespace PL
 {
+    class vModel;
+    
     class vMemoryManager : public IUncopiable, public IDependent
     {
     public:

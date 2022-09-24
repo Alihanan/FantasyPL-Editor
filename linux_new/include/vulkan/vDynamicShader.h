@@ -68,7 +68,6 @@ namespace PL{
         ~vShader_terrain() {}
         struct terrain_Vertex {
             glm::vec3 inLocalPosition;
-            glm::vec3 inNormal;
         };
         const std::vector<VkVertexInputBindingDescription> binding = 
            {{0, sizeof(terrain_Vertex), VK_VERTEX_INPUT_RATE_VERTEX}};
@@ -80,7 +79,6 @@ namespace PL{
         }
         const std::vector<VkVertexInputAttributeDescription> attrib = {
                 {0, 0, VK_FORMAT_R32G32B32_SFLOAT, offsetof(terrain_Vertex, inLocalPosition)},
-                {1, 0, VK_FORMAT_R32G32B32_SFLOAT, offsetof(terrain_Vertex, inNormal)},
         };
         const std::vector<VkVertexInputAttributeDescription>&
             getAttributeDescriptions()

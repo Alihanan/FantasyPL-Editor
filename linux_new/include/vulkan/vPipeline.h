@@ -14,14 +14,16 @@ namespace PL
     {
     public:
         // Others
-        vPipeline(VkPipeline* pipe, vDevice* device, vSwapchain* swapchain);
+        vPipeline(VkPipeline* pipe, vShader* shader, vDevice* device, vSwapchain* swapchain);
         ~vPipeline();
         
-        void addModel(vModel* model);
-        void deleteModel(vModel* model);
-        void renderAll(uint32_t bufferIndex, uint32_t imageIndex);
+        void AddModel(vModel* model);
+        void DeleteModel(vModel* model);
+        void RenderAll(uint32_t bufferIndex, uint32_t imageIndex);
+        vShader* GetShader() {return this->shader; }
     protected:
         VkPipeline* graphicsPipeline;
+        vShader* shader;
         vDevice* device;
         vSwapchain* swapchain;
         void Initialize();

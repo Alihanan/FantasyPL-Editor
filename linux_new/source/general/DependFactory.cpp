@@ -93,7 +93,7 @@ namespace PL
         std::vector<std::vector<IDependent*>> ret;
         for(std::string str : context)
         {
-            ret.push_back(this->createOrGetInstance(str, false));
+            ret.push_back(this->createOrGetInstance(str));
         }
         return ret;
     }

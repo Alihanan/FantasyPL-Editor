@@ -5,8 +5,8 @@
 
 namespace PL
 {
-    vPipeline::vPipeline(VkPipeline* pipe, vDevice* device, vSwapchain* swapchain)
-        : graphicsPipeline(pipe), device(device), swapchain(swapchain)
+    vPipeline::vPipeline(VkPipeline* pipe, vShader* shader, vDevice* device, vSwapchain* swapchain)
+        : graphicsPipeline(pipe), shader(shader), device(device), swapchain(swapchain)
     {
     }
     vPipeline::~vPipeline()
@@ -17,13 +17,13 @@ namespace PL
         vkDestroyCommandPool(this->device->GetReadyDevice()->logicalDevice, 
                             commandPool, nullptr);
     }
-    void vPipeline::addModel(vModel* model)
+    void vPipeline::AddModel(vModel* model)
     {
         if(model == nullptr) 
             throw std::runtime_error("Trying to add empty(nullptr) model to the pipeline!");
         this->models.push_back(model);
     }
-    void vPipeline::deleteModel(vModel* model)
+    void vPipeline::DeleteModel(vModel* model)
     {
         if(model == nullptr) 
             throw std::runtime_error("Trying to delete (nullptr) from the pipeline!");
@@ -35,7 +35,7 @@ namespace PL
             throw std::runtime_error("Trying to delete model that is not in pipeline!");
     }
     
-    void vPipeline::renderAll(uint32_t bufferIndex, uint32_t imageIndex)
+    void vPipeline::RenderAll(uint32_t bufferIndex, uint32_t imageIndex)
     {
         this->recreateCommandBuffers(swapchain->GetImageCount());
 

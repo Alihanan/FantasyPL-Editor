@@ -9,6 +9,7 @@ namespace PL
 
     vSwapchain::~vSwapchain()
     {
+        if(!this->isInitialized) return;
         DeleteSwapchain();
     }
 
@@ -17,6 +18,7 @@ namespace PL
         this->CreateSwapchain();
         this->CreateImages();
         this->CreateFramebuffers();
+        this->isInitialized = true;
     }
     void vSwapchain::RecreateSwapchain()
     {

@@ -45,7 +45,7 @@ namespace PL
         vDevice() {}
         ~vDevice();
         std::vector<VkPhysicalDevice>& GetAvailablePhysicalDevices();
-        uint32_t vDevice::findMemoryType(uint32_t typeFilter, VkMemoryPropertyFlags properties);
+        uint32_t findMemoryType(uint32_t typeFilter, VkMemoryPropertyFlags properties);
         vPhysicalDeviceHandler::ReadyToUseDevice* GetReadyDevice();
 
     protected:

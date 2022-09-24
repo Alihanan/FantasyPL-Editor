@@ -30,5 +30,7 @@ namespace PL
         virtual void ReceiveContext(std::vector<std::vector<IDependent*>> context) = 0;
         virtual void UpdateContext(std::vector<std::vector<IDependent*>> context) = 0;
         virtual ~IDependent() = 0;
+    protected: 
+        bool isInitialized = false;
     };
 }

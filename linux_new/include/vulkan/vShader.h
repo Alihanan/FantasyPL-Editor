@@ -50,7 +50,7 @@ namespace PL
         vDevice* device = nullptr;
 
     private:
-        static std::map<std::string, vShader*> ALL_SHADERS_USED;
+        inline static std::map<std::string, vShader*> ALL_SHADERS_USED = std::map<std::string, vShader*>();
         typedef struct
         {
             const char* format;

@@ -1,5 +1,5 @@
 #include "../../include/vulkan/vPipeConfig.h"
-
+#include "../../include/vulkan/vPipeline.h"
 
 namespace PL
 {
@@ -67,7 +67,7 @@ namespace PL
 
         data.pipelineInfo.pRasterizationState = &(this->data.rasterizer);
     }
-    void vPipeConfig::SetPolygonFillMode(VkPolygonMode mode, float linewidth = 1.0f)
+    void vPipeConfig::SetPolygonFillMode(VkPolygonMode mode, float linewidth)
     {
         data.rasterizer.sType = VK_STRUCTURE_TYPE_PIPELINE_RASTERIZATION_STATE_CREATE_INFO;
         data.rasterizer.polygonMode = mode;
@@ -150,7 +150,7 @@ namespace PL
         VK_NULL_HANDLE, 1, &data.pipelineInfo, nullptr, graphicsPipe) != VK_SUCCESS) {
             throw std::runtime_error("failed to create graphics pipeline!");
         }
-        vPipeline* ret = new vPipeline(graphicsPipe, device);
+        vPipeline* ret = new vPipeline(graphicsPipe, this->data.shader, device, this->swapchain);
         return ret;
     }
 

@@ -10,7 +10,7 @@ layout(binding = 0) uniform UniformBufferObject {
 } ubo;
 
 layout(location = 0) in vec3 outLocalPosition;
-layout(location = 1) in vec3 outNormal;
+//layout(location = 1) in vec3 outNormal;
 
 void main()
 {

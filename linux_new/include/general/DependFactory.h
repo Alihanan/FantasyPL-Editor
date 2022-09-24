@@ -13,7 +13,7 @@ namespace PL
         static DependFactory* I();
 
         std::vector<IDependent*> createOrGetInstance(std::string uid);
-        std::vector<IDependent*> createOrGetInstance(std::string uid, bool forceAdd);
+        
         void deleteInstance(IDependent* dep);
 
         ~DependFactory();

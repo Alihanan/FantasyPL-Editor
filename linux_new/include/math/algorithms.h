@@ -3,6 +3,8 @@
 #include <algorithm>
 #include <set>
 #include <string>
+#include <vector>
+#include <regex>
 
 namespace PL
 {
@@ -32,4 +34,6 @@ namespace PL
         if (ending.size() > value.size()) return false;
         return std::equal(ending.rbegin(), ending.rend(), value.rbegin());
     }
+
+    std::vector<std::string> split_string(std::string source, std::string splitters);
 }

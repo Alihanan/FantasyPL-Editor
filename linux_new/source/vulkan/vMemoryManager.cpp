@@ -1,5 +1,6 @@
 #include "../../include/vulkan/vMemoryManager.h"
 
+#include "../../include/vulkan/vModel.h"
 #include <cstring>
 
 namespace PL
@@ -48,7 +49,7 @@ namespace PL
     }
     vMemoryManager::Buffer* vMemoryManager::createBuffer(vModel* model)
     {
-        Data data = this->readData(model->GetSourceDataFileName());
+        Data data = model->processData();
         return this->generateBuffer(data.data, data.size);
     }
 

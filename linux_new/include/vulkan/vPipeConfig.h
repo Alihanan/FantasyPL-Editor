@@ -4,7 +4,6 @@
 #include "../general/IDependent.h"
 #include "vDevice.h"
 #include "vSwapchain.h"
-#include "vPipeline.h"
 #include "vShaderManager.h"
 
 #define GLFW_INCLUDE_VULKAN
@@ -16,6 +15,8 @@
 
 namespace PL
 {
+    class vPipeline;
+
     class vPipeConfig : public IUncopiable, public IDependent
     {
     public:
