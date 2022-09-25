@@ -6,7 +6,7 @@
 // 3D graphics
 #define GLFW_INCLUDE_VULKAN
 #include <GLFW/glfw3.h> 
-//#define NDEBUG
+#define NDEBUG
 
 namespace PL
 {
@@ -15,7 +15,6 @@ namespace PL
     public:
         // IDependent
         const static std::string _DEP_ID;
-        inline const static std::vector<std::string> _DEP_NEEDED_DEPS = {};
 
         vInstance()
         : appName(DEFAULT_APP_NAME)
@@ -23,7 +22,7 @@ namespace PL
         
         std::vector<std::string> GetNeededDependencies()
         {
-            return this->_DEP_NEEDED_DEPS;
+            return {};
         }
 
         void ReceiveContext(std::vector<std::vector<IDependent*>> context)

@@ -48,6 +48,19 @@ namespace PL
         }     
         swapChainFramebuffers.clear();
     }
+    
+    VkResult vSwapchain::AcquireImage(uint32_t* imageIndex, VkSemaphore& sem)
+    {
+        VkResult ret = vkAcquireNextImageKHR(this->device->GetReadyDevice()->logicalDevice, 
+                            this->swapChain, UINT64_MAX, 
+                            sem, 
+                            VK_NULL_HANDLE, imageIndex);
+        return ret;
+    }
+
+
+
+
     void vSwapchain::CreateSwapchain()
     {
         auto readyDevice = this->device->GetReadyDevice();
@@ -84,8 +97,8 @@ namespace PL
             createInfo.pQueueFamilyIndices = queueFamilyIndices;
         } else {
             createInfo.imageSharingMode = VK_SHARING_MODE_EXCLUSIVE;
-            createInfo.queueFamilyIndexCount = 0; // Optional
-            createInfo.pQueueFamilyIndices = nullptr; // Optional
+            //createInfo.queueFamilyIndexCount = 0; // Optional
+            //createInfo.pQueueFamilyIndices = nullptr; // Optional
         }
 
         // Create swapchain

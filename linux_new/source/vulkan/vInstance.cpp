@@ -32,7 +32,7 @@ namespace PL
 
     void vInstance::InitializeInstance()
     {
-        VkApplicationInfo appInfo;
+        VkApplicationInfo appInfo {};
         appInfo.sType = VK_STRUCTURE_TYPE_APPLICATION_INFO;
         appInfo.pApplicationName = this->appName.c_str();
         appInfo.applicationVersion = VK_MAKE_VERSION(1, 0, 0);
@@ -211,7 +211,8 @@ namespace PL
             const VkDebugUtilsMessengerCallbackDataEXT* pCallbackData,
             void* pUserData) 
     {
-        vApplication::GLOBAL_LOGGER << LOG_MSG_ERROR << "validation layer: " << pCallbackData->pMessage << std::endl;
+        if(messageSeverity != VK_DEBUG_UTILS_MESSAGE_SEVERITY_VERBOSE_BIT_EXT)
+            vApplication::GLOBAL_LOGGER << LOG_MSG_ERROR << "validation layer: " << pCallbackData->pMessage << std::endl;
 
         return VK_FALSE;
     }

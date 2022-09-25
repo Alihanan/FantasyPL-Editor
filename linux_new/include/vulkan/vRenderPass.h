@@ -12,12 +12,12 @@ namespace PL
         vRenderPass() {}
         // IDependent
         const static std::string _DEP_ID;
-        inline const static std::vector<std::string> _DEP_NEEDED_DEPS = {
-            vDevice::_DEP_ID
-        };
+        // inline const static std::vector<std::string> _DEP_NEEDED_DEPS = {
+        //     vDevice::_DEP_ID
+        // };
         std::vector<std::string> GetNeededDependencies()
         {
-            return this->_DEP_NEEDED_DEPS;
+            return {vDevice::_DEP_ID};
         }
         std::string GetDependencyID()
         {
@@ -38,7 +38,7 @@ namespace PL
         // Other members
         ~vRenderPass();
         VkRenderPass& GetRenderPass() { return this->renderPass; }
-        VkSurfaceFormatKHR GetSwapFormat() { return this->swap_format; }
+        VkSurfaceFormatKHR& GetSwapFormat() { return this->swap_format; }
 
     protected:
         vDevice* device;

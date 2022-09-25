@@ -8,8 +8,11 @@
 #include "../../include/vulkan/vDevice.h"
 #include "../../include/vulkan/vRenderer.h"
 #include "../../include/vulkan/vShaderManager.h"
+#include "../../include/vulkan/vPipeConfig.h"
 #include "../../include/vulkan/vModelManager.h"
+#include "../../include/vulkan/vSwapchain.h"
 #include "../../include/math/algorithms.h"
+
 
 namespace PL
 {
@@ -61,6 +64,22 @@ namespace PL
         else if(uid == vModelManager::_DEP_ID)
         {
             toAdd = new vModelManager();
+        }
+        else if(uid == vPipeConfig::_DEP_ID)
+        {
+            toAdd = new vPipeConfig();
+        }
+        else if(uid == vMemoryManager::_DEP_ID)
+        {
+            toAdd = new vMemoryManager();
+        }
+        else if(uid == vSwapchain::_DEP_ID)
+        {
+            toAdd = new vSwapchain();
+        }
+        else if(uid == vShaderManager::_DEP_ID)
+        {
+            toAdd = new vShaderManager();
         }
         else{
             throw std::runtime_error("Trying to create non-existing dependent object");

@@ -13,12 +13,12 @@ namespace PL
     public:
         // IDependent
         const static std::string _DEP_ID;
-        inline const static std::vector<std::string> _DEP_NEEDED_DEPS = {
-            vDevice::_DEP_ID, vWindow::_DEP_ID, vRenderPass::_DEP_ID
-        };
+        // inline const static std::vector<std::string> _DEP_NEEDED_DEPS = {
+        //     vDevice::_DEP_ID, vWindow::_DEP_ID, vRenderPass::_DEP_ID
+        // };
         std::vector<std::string> GetNeededDependencies()
         {
-            return this->_DEP_NEEDED_DEPS;
+            return {vDevice::_DEP_ID, vWindow::_DEP_ID, vRenderPass::_DEP_ID};
         }
         std::string GetDependencyID()
         {
@@ -43,6 +43,9 @@ namespace PL
         std::vector<VkFramebuffer>& GetFramebuffers() { return this->swapChainFramebuffers;}
         VkExtent2D GetExtent() { return this->swap_extent; }
 
+        VkResult AcquireImage(uint32_t* imageIndex, VkSemaphore& sem);
+        VkSwapchainKHR& GetSwapchain() {return this->swapChain;}
+        
     protected:
         vDevice* device;
         vWindow* window;

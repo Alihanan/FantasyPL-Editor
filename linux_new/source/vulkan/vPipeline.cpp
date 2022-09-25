@@ -8,6 +8,7 @@ namespace PL
     vPipeline::vPipeline(VkPipeline* pipe, vShader* shader, vDevice* device, vSwapchain* swapchain)
         : graphicsPipeline(pipe), shader(shader), device(device), swapchain(swapchain)
     {
+        this->Initialize();
     }
     vPipeline::~vPipeline()
     {
@@ -42,7 +43,8 @@ namespace PL
         VkCommandBuffer& currentBuffer = this->commandBuffers[bufferIndex]; 
 
         this->BeginRecordCommandBuffer(bufferIndex, imageIndex);
-        
+        this->SetDynamicStates(bufferIndex);
+
         for(auto model : this->models)
         {
             model->bind(currentBuffer);
@@ -101,6 +103,16 @@ namespace PL
         if (vkEndCommandBuffer(commandBuffer) != VK_SUCCESS) {
             throw std::runtime_error("failed to record command buffer!");
         }
+    }
+    void vPipeline::SetDynamicStates(uint32_t bufferIndex)
+    {
+        VkCommandBuffer commandBuffer = this->commandBuffers[bufferIndex];
+
+        auto extent = this->swapchain->GetExtent();
+        this->SetWindowExtent(extent.width, extent.height);
+
+        vkCmdSetViewport(commandBuffer, 0, 1, &this->viewport);
+        vkCmdSetScissor(commandBuffer, 0, 1, &this->scissor);
     }
     void vPipeline::Initialize()
     {

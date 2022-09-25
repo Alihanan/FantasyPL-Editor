@@ -7,34 +7,20 @@
 
 namespace PL
 {
-    vModel* vModel::createModelFactory(PJSON settings, vMemoryManager* manager, vPipeConfig* config)
+    vModel* vModel::createModelFactory(PJSON settings, vMemoryManager* manager, vShader* shader)
     {
-        if(!settings.hasKey("type") || !settings.hasKey("shader") || !settings.hasKey("input") || !settings.hasKey("src"))
+        if(!settings.hasKey("type") || !settings.hasKey("src"))
         {
             throw std::runtime_error("Wrong JSON format for model definition!" + settings.ToString());
         }
 
         auto& src = settings["src"];
         std::string type = settings["type"].ToString();
-        std::string shaderName = settings["shader"].ToString();
-        std::string input_type = settings["input"].ToString();
-
-        if(input_type == "quad")
-        {
-            config->SetInputAssembly(VK_PRIMITIVE_TOPOLOGY_PATCH_LIST, false);
-        }
-        else if(input_type == "tri")
-        {
-            config->SetInputAssembly(VK_PRIMITIVE_TOPOLOGY_TRIANGLE_LIST, false);
-        }
-
-        config->SetShaderName(shaderName);
-        vPipeline* pipeline = config->GeneratePipeline();
         
         vModel* ret;
         if(type == "terrain")
         {
-            vTerrainModel* terrain = new vTerrainModel(manager, pipeline->GetShader());
+            vTerrainModel* terrain = new vTerrainModel(manager, shader);
 
             std::vector<std::string> hFiles;
             for( auto &j : src.ArrayRange())
@@ -46,7 +32,7 @@ namespace PL
         }
         else if(type == "obj")
         {
-            vFileModel* fModel = new vFileModel(src.ToString(), manager, pipeline->GetShader());
+            vFileModel* fModel = new vFileModel(src.ToString(), manager, shader);
             ret = fModel;
         }
 
@@ -98,13 +84,13 @@ namespace PL
             {
                 if(part[0] == 'x')
                 {
-                    std::string str = part.erase(0);
+                    std::string str = part.erase(0, 1);
                     x_coord = (uint32_t)std::stoi( str );
                     continue;
                 }
                 if(part[0] == 'y')
                 {
-                    std::string str = part.erase(0);
+                    std::string str = part.erase(0, 1);
                     y_coord = (uint32_t)std::stoi( str );
                     continue;
                 }
@@ -122,8 +108,10 @@ namespace PL
     vMemoryManager::Data vTerrainModel::processData()
     {
         vMemoryManager::Data ret;
-        std::vector<vShader_terrain::terrain_Vertex> vertices;
-        vShader_terrain* tshader = static_cast<vShader_terrain*>(this->shader);
+        //std::vector<vShader_terrain::terrain_Vertex> vertices;
+        //vShader_terrain* tshader = static_cast<vShader_terrain*>(this->shader);
+        uint32_t total_size = this->current_res_W * this->current_res_H * 4;
+        vShader_terrain::terrain_Vertex* vertices = new vShader_terrain::terrain_Vertex[total_size];
 
         for(uint32_t W = 0; W < this->current_res_W; W++)
         {
@@ -139,15 +127,13 @@ namespace PL
                 glm::vec3 bottomRight = center + glm::vec3(this->chunk_size_W / 2.0f, -this->chunk_size_H / 2.0f, 0.0f);
 
                 // generate quad
-                vertices.push_back({bottomleft});
-                vertices.push_back({bottomRight});
-                vertices.push_back({topRight});
-                vertices.push_back({topLeft}); 
-
-
+                vertices[W * this->current_res_H * 4 + 4*H] = {bottomleft};
+                vertices[W * this->current_res_H * 4 + 4*H + 1] = {bottomRight};
+                vertices[W * this->current_res_H * 4 + 4*H + 2] = {topRight};
+                vertices[W * this->current_res_H * 4 + 4*H + 3] = {topLeft};
             }
         }
 
-        return {vertices.data(), vertices.size() * sizeof(vShader_terrain::terrain_Vertex)};
+        return {vertices, total_size * sizeof(vShader_terrain::terrain_Vertex)};
     }
 }

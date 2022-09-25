@@ -35,9 +35,9 @@ namespace PL
 
         // IDependent
         const static std::string _DEP_ID;
-        inline const static std::vector<std::string> _DEP_NEEDED_DEPS = {
-            vWindow::_DEP_ID, vInstance::_DEP_ID
-        };
+        // inline const static std::vector<std::string> _DEP_NEEDED_DEPS = {
+        //     vWindow::_DEP_ID, vInstance::_DEP_ID
+        // };
 
         vPhysicalDeviceHandler()
         {
@@ -46,7 +46,7 @@ namespace PL
         
         std::vector<std::string> GetNeededDependencies()
         {
-            return this->_DEP_NEEDED_DEPS;
+            return {vWindow::_DEP_ID, vInstance::_DEP_ID};
         }
 
         void ReceiveContext(std::vector<std::vector<IDependent*>> context)

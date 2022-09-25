@@ -27,14 +27,17 @@ namespace PL
 
             for(vWindow* win : this->windows)
             {
-                winCounter += (!win->MainShouldClose());
-                if(win->MainShouldClose())
+                bool shouldClose = win->MainShouldClose();
+                winCounter += (!shouldClose);
+                if(shouldClose)
                 {
                     continue;
                 }
             }
-
             if(winCounter == 0) break;
+
+            //this->active_window->
+            this->renderer->MainRenderTick(this->active_window);
         }
     }
 }

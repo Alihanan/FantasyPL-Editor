@@ -16,9 +16,9 @@ namespace PL
     public:
         // IDependent
         const static std::string _DEP_ID;
-        inline const static std::vector<std::string> _DEP_NEEDED_DEPS = {
-            vInstance::_DEP_ID
-        };
+        // inline const static std::vector<std::string> _DEP_NEEDED_DEPS = {
+        //     vInstance::_DEP_ID
+        // };
 
         vWindow()
         : windowExtent({INITIAL_WIDTH, INITIAL_HEIGHT})
@@ -26,7 +26,7 @@ namespace PL
         
         std::vector<std::string> GetNeededDependencies()
         {
-            return this->_DEP_NEEDED_DEPS;
+            return {vInstance::_DEP_ID};
         }
 
         void ReceiveContext(std::vector<std::vector<IDependent*>> context)

@@ -29,6 +29,13 @@ OUT_SCRIPT=$(SRC_SCRIPT:.c=.exe)
 # GLSL shaders to compile
 VSHADERSRC=$(shell find $(SOURCEDIR) -name '*.vert')
 FSHADERSRC=$(shell find $(SOURCEDIR) -name '*.frag')
+
+TESESHADERSRC=$(shell find $(SOURCEDIR) -name '*.tese')
+ALL_TESE_SHADERS=$(shell echo $(TESESHADERSRC) | tr ' ' '\n' | sort)
+
+TESCSHADERSRC=$(shell find $(SOURCEDIR) -name '*.tesc')
+ALL_TESC_SHADERS=$(shell echo $(TESCSHADERSRC) | tr ' ' '\n' | sort)
+
 ALL_VERT_SHADERS=$(shell echo $(VSHADERSRC) | tr ' ' '\n' | sort)
 ALL_FRAG_SHADERS=$(shell echo $(FSHADERSRC) | tr ' ' '\n' | sort)
 # SOME INFO: we only compile shaders that have both .vert and .frag
@@ -38,7 +45,19 @@ TARGET_SHADERS=$(shell for item in $(ALL_VERT_SHADERS:.vert=); do \
 			echo $$item; fi;\
 	done; done) # only both .vert and .frag -> complete shaders
 
-SHADEROBJ=$(shell for item in $(TARGET_SHADERS); do echo $$item".vert.spv"; done;)
+OBJ_TESE_SHADERS=$(shell for item in $(TARGET_SHADERS); do \
+	for item2 in $(ALL_TESE_SHADERS:.tese=); do \
+		if [ $$item2 = $$item ]; then\
+			echo $$item2; fi;\
+	done; done) # Add tese shaders
+OBJ_TESC_SHADERS=$(shell for item in $(TARGET_SHADERS); do \
+	for item2 in $(ALL_TESC_SHADERS:.tesc=); do \
+		if [ $$item2 = $$item ]; then\
+			echo $$item2; fi;\
+	done; done) # Add tesc shaders
+SHADEROBJ=$(shell for item in $(OBJ_TESE_SHADERS); do echo $$item".tese.spv"; done;)
+SHADEROBJ+=$(shell for item in $(OBJ_TESC_SHADERS); do echo $$item".tesc.spv"; done;)
+SHADEROBJ+=$(shell for item in $(TARGET_SHADERS); do echo $$item".vert.spv"; done;)
 SHADEROBJ+=$(shell for item in $(TARGET_SHADERS); do echo $$item".frag.spv"; done;)
 
 OUT=app
@@ -85,6 +104,11 @@ $(DYN_HEADERS): $(OUT_SCRIPT)
 
 %.frag.spv: %.frag $(OUT_SCRIPT) 
 	$(GLSLC) $(GLSLFLAGS) -fshader-stage=frag $< -o $@
+
+%.tese.spv: %.tese $(OUT_SCRIPT)
+	$(GLSLC) $(GLSLFLAGS) -fshader-stage=tese $< -o $@
+%.tesc.spv: %.tesc $(OUT_SCRIPT)
+	$(GLSLC) $(GLSLFLAGS) -fshader-stage=tesc $< -o $@
 
 run: all
 	./$(OUT)

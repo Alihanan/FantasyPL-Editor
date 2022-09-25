@@ -5,11 +5,11 @@ layout(location = 0) in vec3 inLocalPosition;
 layout(location = 0) out vec3 outLocalPosition;
 
 
-layout(binding = 0) uniform UniformBufferObject {
-    mat4 model;
-    mat4 view;
-    mat4 proj;
-} ubo;
+// layout(binding = 0) uniform UniformBufferObject {
+//     mat4 model;
+//     mat4 view;
+//     mat4 proj;
+// } ubo;
 /*
 vec3 colors[3] = vec3[](
     vec3(1.0, 0.0, 0.0),

@@ -33,12 +33,12 @@ namespace PL
         vShader(std::vector<std::string> files, vDevice* device);
     public:
         ~vShader();
-        const std::vector<VkPipelineShaderStageCreateInfo>&
+        virtual const std::vector<VkPipelineShaderStageCreateInfo>&
             getShaderStages()
         {
-            return this->stages;
+            return *this->stages;
         }
-        std::string getShaderName() { return this->name; }
+        std::string GetShaderName() { return this->name; }
 
         
         virtual const std::vector<VkVertexInputBindingDescription>& 
@@ -61,16 +61,16 @@ namespace PL
             {".vert", VK_SHADER_STAGE_VERTEX_BIT}, 
             {".frag", VK_SHADER_STAGE_FRAGMENT_BIT}, 
             {".geom", VK_SHADER_STAGE_GEOMETRY_BIT},
-            {".tcs",  VK_SHADER_STAGE_TESSELLATION_CONTROL_BIT},
-            {".tes",  VK_SHADER_STAGE_TESSELLATION_EVALUATION_BIT},
+            {".tesc",  VK_SHADER_STAGE_TESSELLATION_CONTROL_BIT},
+            {".tese",  VK_SHADER_STAGE_TESSELLATION_EVALUATION_BIT},
         };
 
     protected:
         const std::string name;
-        std::vector<VkPipelineShaderStageCreateInfo> stages;
+        std::vector<VkPipelineShaderStageCreateInfo>* stages;
         const std::vector<std::string> files;
 
-        std::vector<VkPipelineShaderStageCreateInfo> readStages(
+        std::vector<VkPipelineShaderStageCreateInfo>* readStages(
             std::vector<std::string> files, VkDevice& device);
         
         std::vector<char>* readFile(const std::string& filename);

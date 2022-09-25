@@ -55,14 +55,14 @@ namespace PL{
     };
 }
 // Dynamically generated from shaders:
-//    ./shaders/terrain.vert ./shaders/terrain.frag ./shaders/terrain.tese 
+//    ./shaders/terrain.tesc ./shaders/terrain.vert ./shaders/terrain.frag ./shaders/terrain.tese 
 namespace PL{
     class vShader_terrain : public vShader
     {
     public:
         vShader_terrain(vDevice* device)
             : vShader({
-            "./shaders/terrain.vert","./shaders/terrain.frag","./shaders/terrain.tese",
+            "./shaders/terrain.tesc","./shaders/terrain.vert","./shaders/terrain.frag","./shaders/terrain.tese",
             }, device)
         {}
         ~vShader_terrain() {}
@@ -85,18 +85,6 @@ namespace PL{
         {
             return attrib;
         }
-        struct UniformBufferObject_ubo{
-            alignas(16) glm::mat4 model;
-            alignas(16) glm::mat4 view;
-            alignas(16) glm::mat4 proj;
-        };
-        UniformBufferObject_ubo UniformBufferObject;
-
-        UniformBufferObject_ubo get_UniformBufferObject()
-         { return this->UniformBufferObject; }
-
-        void set_UniformBufferObject(UniformBufferObject_ubo in) 
-        { this->UniformBufferObject = in; } // TODO add pushing to pipeline etc 
 
         void pushUBOS() {} 
 

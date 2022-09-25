@@ -14,12 +14,12 @@ namespace PL
     public:
         // IDependent
         const static std::string _DEP_ID; 
-        inline const static std::vector<std::string> _DEP_NEEDED_DEPS = {
-            vWindow::_DEP_ID, vDevice::_DEP_ID, vRenderer::_DEP_ID
-        };
+        // inline const static std::vector<std::string> _DEP_NEEDED_DEPS = {
+        //     vWindow::_DEP_ID, vDevice::_DEP_ID, vRenderer::_DEP_ID
+        // };
         std::vector<std::string> GetNeededDependencies()
         {
-            return this->_DEP_NEEDED_DEPS;
+            return {vWindow::_DEP_ID, vDevice::_DEP_ID, vRenderer::_DEP_ID};
         }
 
         void ReceiveWindows(std::vector<IDependent*> context)
@@ -35,6 +35,8 @@ namespace PL
         void ReceiveContext(std::vector<std::vector<IDependent*>> context)
         {          
             this->ReceiveWindows(context[0]);
+            active_window = this->windows[0];
+            
             this->device = static_cast<vDevice*>(context[1][0]);
             this->renderer = static_cast<vRenderer*>(context[2][0]);
             this->Initialize();
@@ -57,6 +59,7 @@ namespace PL
 
     protected:
         std::vector<vWindow*> windows;
+        vWindow* active_window;
         vDevice* device;
         vRenderer* renderer;
 

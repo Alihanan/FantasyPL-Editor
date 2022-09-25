@@ -5,7 +5,7 @@
 
 namespace PL
 {
-    const std::string vMemoryManager::_DEP_ID = IDependent::type(vMemoryManager());
+    
 
     vMemoryManager::~vMemoryManager()
     {
@@ -63,7 +63,9 @@ namespace PL
     vMemoryManager::Buffer* vMemoryManager::generateBuffer(void* data, uint32_t size)
     {
         Buffer* buf = new Buffer;
-
+        *buf = {};
+        buf->buf_size = size;
+        
         VkBufferUsageFlags usage = VK_BUFFER_USAGE_VERTEX_BUFFER_BIT; // VB buffer
         VkMemoryPropertyFlags properties =
                 VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | // write accessible
@@ -110,7 +112,7 @@ namespace PL
 
         vkUnmapMemory(this->device->GetReadyDevice()->logicalDevice, buf->memory);
 
-        delete data;
+        //delete data;
 
         return buf;
     }

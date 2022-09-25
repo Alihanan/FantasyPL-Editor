@@ -1,10 +1,12 @@
 #include "../../include/vulkan/vModelManager.h"
 
 #include "../../include/io/PseudoJson.h"
+#include "../../include/vulkan/vModel.h"
+#include "../../include/vulkan/vPipeline.h"
 
 namespace PL
 {
-    const std::string vModelManager::_DEP_ID = IDependent::type(vModelManager());//typeid(*(new vPipeline())).name();
+    
 
     vModelManager::~vModelManager()
     {
@@ -22,17 +24,58 @@ namespace PL
 
         for( auto &j : models.ArrayRange())
         {
-            if(!j.hasKey("type") || !j.hasKey("src"))
+            if(!j.hasKey("type") || !j.hasKey("src") || !j.hasKey("shader") || !j.hasKey("input"))
             {
-                throw std::runtime_error("Wrong JSON format for model definition!");
+                throw std::runtime_error("Wrong JSON format for model definition!" + j.ToString());
             }
-
-            std::string type = j["type"].ToString();
-            std::string srcFile = j["src"].ToString();
             
-            std::cout << type << ", " << srcFile << std::endl;
-            return;
+            this->readShaderInfo(j);
+            std::string shaderName = j["shader"].ToString();
+            
+            auto pipeline = this->createdPipelines[shaderName];
+            auto model = vModel::createModelFactory(j, this->memoryManager, pipeline->GetShader());
+            pipeline->AddModel(model);
+            break;
         }
+    }
+
+    void vModelManager::readShaderInfo(PJSON settings)
+    {
+        std::string shaderName = settings["shader"].ToString();
+        std::string input_type = settings["input"].ToString();
+
+        if(input_type == "quad")
+        {
+            this->pipeConfig->SetInputAssembly(VK_PRIMITIVE_TOPOLOGY_PATCH_LIST, false);
+        }
+        else if(input_type == "tri")
+        {
+            this->pipeConfig->SetInputAssembly(VK_PRIMITIVE_TOPOLOGY_TRIANGLE_LIST, false);
+        }
+
+        if(this->createdPipelines.find(shaderName) == this->createdPipelines.end())
+        {
+            this->pipeConfig->SetShaderName(shaderName);
+            this->createdPipelines[shaderName] = this->pipeConfig->GeneratePipeline();
+        }
+
+    }
+
+    
+    std::vector<VkCommandBuffer>& vModelManager::RecordAllPipelines(uint32_t frameIndex, uint32_t imageIndex)
+    {
+        std::vector<VkCommandBuffer>* ret = new std::vector<VkCommandBuffer>();
+        for(auto const& [key, value] : this->createdPipelines)
+        {
+            value->RenderAll(frameIndex, imageIndex);
+            ret->push_back(value->GetActiveCommandBuffer(frameIndex));
+        }
+        return *ret;
+    }
+
+    void vModelManager::Initialize()
+    {
+        this->readAllModelsFromJSON("models/models.json");
     }
 
 }

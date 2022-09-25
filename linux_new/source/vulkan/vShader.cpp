@@ -15,7 +15,7 @@ namespace PL
         device(device),
         files(files)
     {
-        this->readStages(this->files, this->device->GetReadyDevice()->logicalDevice);
+        this->stages = this->readStages(files, device->GetReadyDevice()->logicalDevice);
     }
 
     vShader::~vShader()
@@ -68,12 +68,11 @@ namespace PL
     }
 
 
-    std::vector<VkPipelineShaderStageCreateInfo> vShader::readStages(
+    std::vector<VkPipelineShaderStageCreateInfo>* vShader::readStages(
             std::vector<std::string> files, VkDevice& device
             )
     {
-        std::vector<VkPipelineShaderStageCreateInfo> vec;// = 
-            // std::vector<VkPipelineShaderStageCreateInfo>();1
+        std::vector<VkPipelineShaderStageCreateInfo>* vec = new std::vector<VkPipelineShaderStageCreateInfo>();
         for(std::string f : files)
         {
             std::vector<char>* ret = this->readFile(f + vShader::SHADER_SPIRV_FORMAT);
@@ -82,7 +81,7 @@ namespace PL
             createInfo.codeSize = ret->size();
             createInfo.pCode = reinterpret_cast<const uint32_t*>(ret->data());
 
-            VkShaderModule shaderModule;
+            VkShaderModule shaderModule{};
             if (vkCreateShaderModule(device,
                 &createInfo, nullptr, &shaderModule) != VK_SUCCESS) {
 
@@ -92,7 +91,7 @@ namespace PL
             delete ret;
 
 
-            VkPipelineShaderStageCreateInfo shaderStageInfo;
+            VkPipelineShaderStageCreateInfo shaderStageInfo {};
             
             shaderStageInfo.pName = "main";
             shaderStageInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_SHADER_STAGE_CREATE_INFO;
@@ -111,14 +110,14 @@ namespace PL
                     break;
                 }
             }
-            vec.push_back(shaderStageInfo);
+            vec->push_back(shaderStageInfo);
         }
 
         auto sortRuleLambda = [] (VkPipelineShaderStageCreateInfo const& s1, VkPipelineShaderStageCreateInfo const& s2) -> bool
         {
         return s1.stage < s2.stage;
         };
-        std::sort(vec.begin(), vec.end(), sortRuleLambda);
+        std::sort(vec->begin(), vec->end(), sortRuleLambda);
 
         return vec;
     }

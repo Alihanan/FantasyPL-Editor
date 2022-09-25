@@ -43,6 +43,9 @@ namespace PL
 
         // ask for features
         VkPhysicalDeviceFeatures deviceFeatures{};
+        deviceFeatures.tessellationShader = VK_TRUE;
+        deviceFeatures.geometryShader = VK_TRUE;
+        
         // add everything for struct
         VkDeviceCreateInfo createInfo{};
         createInfo.sType = VK_STRUCTURE_TYPE_DEVICE_CREATE_INFO;

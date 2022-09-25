@@ -17,7 +17,7 @@ namespace PL
     class vModel : public IUncopiable
     {
     public:       
-        static vModel* createModelFactory(PJSON settings, vMemoryManager* manager, vPipeConfig* config);
+        static vModel* createModelFactory(PJSON settings, vMemoryManager* manager, vShader* shader);
 
         virtual ~vModel();
         virtual void bind(VkCommandBuffer comBuf);
@@ -29,7 +29,6 @@ namespace PL
         vModel(vMemoryManager* manager, vShader* shader) :
             memoryManager(manager), shader(shader)
         {
-            this->memoryManager->AllocateVBOandUBO(this);
             this->num_vertices = 0;
         }
         vMemoryManager* memoryManager;
@@ -49,6 +48,7 @@ namespace PL
         vFileModel(std::string file, vMemoryManager* manager, vShader* shader) :
             filename(file), vModel(manager, shader) 
         { 
+            
         }
         virtual vMemoryManager::Data processData();
 
