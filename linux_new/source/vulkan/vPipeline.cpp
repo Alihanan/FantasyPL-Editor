@@ -117,6 +117,9 @@ namespace PL
     void vPipeline::Initialize()
     {
         this->createCommandPools();
+        this->SetScissor(0, 0);
+        this->SetViewport(0.0f, 0.0f);
+        this->SetDepthScissor(0.0f, 1.0f);
     }
 
     void vPipeline::createCommandPools()

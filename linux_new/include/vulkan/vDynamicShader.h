@@ -16,7 +16,6 @@ namespace PL{
         ~vShader_normal() {}
         struct normal_Vertex {
             glm::vec2 inPosition;
-            glm::vec3 inColor;
         };
         const std::vector<VkVertexInputBindingDescription> binding = 
            {{0, sizeof(normal_Vertex), VK_VERTEX_INPUT_RATE_VERTEX}};
@@ -28,7 +27,6 @@ namespace PL{
         }
         const std::vector<VkVertexInputAttributeDescription> attrib = {
                 {0, 0, VK_FORMAT_R32G32_SFLOAT, offsetof(normal_Vertex, inPosition)},
-                {1, 0, VK_FORMAT_R32G32B32_SFLOAT, offsetof(normal_Vertex, inColor)},
         };
         const std::vector<VkVertexInputAttributeDescription>&
             getAttributeDescriptions()

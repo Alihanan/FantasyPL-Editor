@@ -54,7 +54,7 @@ namespace PL
 
     void vModel::draw(VkCommandBuffer comBuf)
     {
-        vkCmdDraw(comBuf, this->num_vertices, 1, 0, 0);
+        vkCmdDraw(comBuf, this->getNumberVertices(), 1, 0, 0);
     }
 
     vMemoryManager::Data vModel::processData()
@@ -110,8 +110,10 @@ namespace PL
         vMemoryManager::Data ret;
         //std::vector<vShader_terrain::terrain_Vertex> vertices;
         //vShader_terrain* tshader = static_cast<vShader_terrain*>(this->shader);
-        uint32_t total_size = this->current_res_W * this->current_res_H * 4;
+        uint32_t total_size = this->getNumberVertices();
         vShader_terrain::terrain_Vertex* vertices = new vShader_terrain::terrain_Vertex[total_size];
+
+        
 
         for(uint32_t W = 0; W < this->current_res_W; W++)
         {
@@ -127,10 +129,10 @@ namespace PL
                 glm::vec3 bottomRight = center + glm::vec3(this->chunk_size_W / 2.0f, -this->chunk_size_H / 2.0f, 0.0f);
 
                 // generate quad
-                vertices[W * this->current_res_H * 4 + 4*H] = {bottomleft};
-                vertices[W * this->current_res_H * 4 + 4*H + 1] = {bottomRight};
-                vertices[W * this->current_res_H * 4 + 4*H + 2] = {topRight};
-                vertices[W * this->current_res_H * 4 + 4*H + 3] = {topLeft};
+                vertices[W * this->current_res_H * quad_num + quad_num*H] = {bottomleft};
+                vertices[W * this->current_res_H * quad_num + quad_num*H + 1] = {bottomRight};
+                vertices[W * this->current_res_H * quad_num + quad_num*H + 2] = {topRight};
+                //vertices[W * this->current_res_H * quad_num + quad_num*H + 3] = {topLeft};
             }
         }
 

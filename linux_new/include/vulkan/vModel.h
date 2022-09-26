@@ -22,6 +22,8 @@ namespace PL
         virtual ~vModel();
         virtual void bind(VkCommandBuffer comBuf);
         virtual void draw(VkCommandBuffer comBuf);
+        
+        virtual uint32_t getNumberVertices() = 0;
         virtual vMemoryManager::Data processData() = 0;
         
     protected:
@@ -29,12 +31,10 @@ namespace PL
         vModel(vMemoryManager* manager, vShader* shader) :
             memoryManager(manager), shader(shader)
         {
-            this->num_vertices = 0;
+            
         }
         vMemoryManager* memoryManager;
         vShader* shader;
-
-        uint32_t num_vertices = 0;
 
     private:
         vModel() {}
@@ -50,10 +50,11 @@ namespace PL
         { 
             
         }
-        virtual vMemoryManager::Data processData();
-
+        vMemoryManager::Data processData();
+        uint32_t getNumberVertices() {return this->num_vertices;}
     protected:
         std::string filename;
+        uint32_t num_vertices = 0;
     };
 }
 namespace PL
@@ -71,8 +72,8 @@ namespace PL
          */
         void SetHeightMaps(std::vector<std::string> filenames);
         void SetResolution(uint32_t W, uint32_t H);
-
-        virtual vMemoryManager::Data processData();
+        uint32_t getNumberVertices() {return this->current_res_W * this->current_res_H * quad_num;}
+        vMemoryManager::Data processData();
         
 
     protected:
@@ -84,10 +85,12 @@ namespace PL
         };
         std::vector<HeightMapChunk> heightChunks;
 
+        uint32_t quad_num = 3;
+
         uint32_t current_res_W = 10;
         uint32_t current_res_H = 10;
 
-        float chunk_size_W = 1.0f;
-        float chunk_size_H = 1.0f;
+        float chunk_size_W = 0.1f;
+        float chunk_size_H = 0.1f;
     };
 }

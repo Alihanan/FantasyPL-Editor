@@ -1,6 +1,5 @@
 {
     "models" : [
-        {"src" : ["heightmap_x0_y1.png"], "type" : "terrain", "input" : "quad", "shader" : "terrain"},
-        {"src" : ["koleda.obj"], "type" : "obj", "input" : "tri", "shader" : "normal"}
+        {"src" : ["heightmap_x0_y1.png"], "type" : "terrain", "input" : "tri", "shader" : "normal"}
     ]
 }

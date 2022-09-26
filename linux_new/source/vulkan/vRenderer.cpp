@@ -22,15 +22,7 @@ namespace PL
     {
         VkDevice& device = this->device->GetReadyDevice()->logicalDevice;
         
-        VkSwapchainKHR swapChains[] = {this->swapchain->GetSwapchain()};
-        presentInfo.pSwapchains = swapChains;
         
-        VkSemaphore signalSemaphores[] = {renderFinishedSemaphores[currentFrame]};
-        submitInfo.pSignalSemaphores = signalSemaphores;
-        VkSemaphore waitSemaphores[] = {imageAvailableSemaphores[currentFrame]};           
-        submitInfo.pWaitSemaphores = waitSemaphores;
-        
-        presentInfo.pWaitSemaphores = signalSemaphores;// wait for CB to finish
 
         // 0. Block 
         vkWaitForFences(device, 1, &inFlightFences[currentFrame], VK_TRUE, UINT64_MAX);  
@@ -53,17 +45,27 @@ namespace PL
         vkResetFences(device, 1, &inFlightFences[currentFrame]);
 
         // 3. Record pipelines
-        auto& comBufs = this->manager->RecordAllPipelines(imageIndex, currentFrame);
+        auto& comBufs = this->manager->RecordAllPipelines(currentFrame, imageIndex);
 
         submitInfo.commandBufferCount = comBufs.size();
         submitInfo.pCommandBuffers = comBufs.data();
 
+        VkSemaphore signalSemaphores[] = {renderFinishedSemaphores[currentFrame]};
+        submitInfo.pSignalSemaphores = signalSemaphores;
+        VkSemaphore waitSemaphores[] = {imageAvailableSemaphores[currentFrame]};           
+        submitInfo.pWaitSemaphores = waitSemaphores;
+        
+       
         // 4. Submit
         if (vkQueueSubmit(this->device->GetReadyDevice()->graphicsQueue, 
                 1, &submitInfo, inFlightFences[currentFrame]) != VK_SUCCESS) {
             throw std::runtime_error("failed to submit draw command buffer!");
         }
         // 5. Present
+        VkSwapchainKHR swapChains[] = {this->swapchain->GetSwapchain()};
+        presentInfo.pSwapchains = swapChains;
+        presentInfo.pWaitSemaphores = signalSemaphores;// wait for CB to finish
+
         result = vkQueuePresentKHR(this->device->GetReadyDevice()->presentQueue, &presentInfo);
         if (result == VK_ERROR_OUT_OF_DATE_KHR || result == VK_SUBOPTIMAL_KHR
                 //|| activeWindow->isFramebufferResized()
@@ -86,9 +88,7 @@ namespace PL
     {
         // Submit Info
         submitInfo.sType = VK_STRUCTURE_TYPE_SUBMIT_INFO;        
-        submitInfo.waitSemaphoreCount = 1;
-        
-        
+        submitInfo.waitSemaphoreCount = 1;        
         submitInfo.signalSemaphoreCount = 1;
 
         VkPipelineStageFlags* waitStages = new VkPipelineStageFlags[1];
@@ -98,7 +98,6 @@ namespace PL
         // Present Info
         presentInfo.sType = VK_STRUCTURE_TYPE_PRESENT_INFO_KHR;
         presentInfo.waitSemaphoreCount = 1;
-        
         presentInfo.swapchainCount = 1;
         presentInfo.pResults = nullptr;
     }
