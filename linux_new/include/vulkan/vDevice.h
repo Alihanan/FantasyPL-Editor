@@ -48,6 +48,8 @@ namespace PL
         uint32_t findMemoryType(uint32_t typeFilter, VkMemoryPropertyFlags properties);
         vPhysicalDeviceHandler::ReadyToUseDevice* GetReadyDevice();
 
+        void UpdateDevice();
+        
     protected:
         void Initialize();        
 

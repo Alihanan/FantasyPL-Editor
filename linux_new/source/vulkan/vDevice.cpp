@@ -12,6 +12,7 @@ namespace PL
 
     vPhysicalDeviceHandler::ReadyToUseDevice* vDevice::GetReadyDevice()
     {
+        this->UpdateDevice();
         return this->device;
     }
 
@@ -43,6 +44,12 @@ namespace PL
         }
 
         throw std::runtime_error("failed to find suitable memory type!");
+    }
+
+    void vDevice::UpdateDevice()
+    {
+        vkGetPhysicalDeviceSurfaceCapabilitiesKHR(device->physicalDevice,
+                    this->window->GetKHRSurface(), &this->device->capabilities);  
     }
 
 }

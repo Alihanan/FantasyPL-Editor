@@ -87,12 +87,9 @@ namespace PL
 
                 throw std::runtime_error("failed to create shader module!");
             }
-
             delete ret;
 
-
             VkPipelineShaderStageCreateInfo shaderStageInfo {};
-            
             shaderStageInfo.pName = "main";
             shaderStageInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_SHADER_STAGE_CREATE_INFO;
             shaderStageInfo.module = shaderModule;

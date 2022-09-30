@@ -54,11 +54,22 @@ namespace PL
         std::vector<VkSemaphore> renderFinishedSemaphores;
         std::vector<VkFence> inFlightFences;
         void InitializeSynchronization();
-        void DeleteSynchronization();
-        
-        void InitializeInfos();
-        VkSubmitInfo submitInfo{};
-        VkPresentInfoKHR presentInfo{};
+        void DeleteSynchronization();        
+
+        void BeginRecordCommandBuffer(uint32_t bufferIndex, uint32_t imageIndex);
+        void EndRecordCommandBuffer(uint32_t bufferIndex);
+
+        VkCommandPool commandPool;
+        void createCommandPools();
+        std::vector<VkCommandBuffer> commandBuffers;
+        void allocateCommandBuffers(uint32_t size);
+        void recreateCommandBuffers(uint32_t size);
+        void freeCommandBuffers();
+
+        VkRenderPassBeginInfo renderPassInfo{};
+
+        void ResizeSwapchain();
+        void CheckResizeSwapchain();
     };
 
 

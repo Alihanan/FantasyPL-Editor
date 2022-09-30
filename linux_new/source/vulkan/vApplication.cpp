@@ -21,22 +21,24 @@ namespace PL
     {
         while(true)
         {
+            if(this->active_window->MainShouldClose()) break;
             vWindow::MainAllWindowGLFWTick();
 
-            uint32_t winCounter = 0;
+            //uint32_t winCounter = 0;
 
-            for(vWindow* win : this->windows)
-            {
-                bool shouldClose = win->MainShouldClose();
-                winCounter += (!shouldClose);
-                if(shouldClose)
-                {
-                    continue;
-                }
-            }
-            if(winCounter == 0) break;
 
-            //this->active_window->
+
+            // for(vWindow* win : this->windows)
+            // {
+            //     bool shouldClose = win->MainShouldClose();
+            //     winCounter += (!shouldClose);
+            //     if(shouldClose)
+            //     {
+            //         continue;
+            //     }
+            // }
+            //if(winCounter == 0) break;
+            this->active_window->CheckMinimized();
             this->renderer->MainRenderTick(this->active_window);
         }
     }

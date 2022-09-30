@@ -59,5 +59,17 @@ namespace PL
     {
         auto win = reinterpret_cast<vWindow*>(glfwGetWindowUserPointer(window));
         win->SetWindowExtent({static_cast<uint32_t>(width), static_cast<uint32_t>(height)});
+        std::cout << "resize: " << width << " " << height << std::endl;
+    }
+
+    void vWindow::CheckMinimized()
+    {
+        int width = 0, height = 0;
+        glfwGetFramebufferSize(this->glfwWindow, &width, &height);
+        while (width == 0 || height == 0) {
+            vApplication::GLOBAL_LOGGER << LOG_MSG_INFO << "Window minimized!" << std::endl;
+            glfwGetFramebufferSize(this->glfwWindow, &width, &height);
+            glfwWaitEvents();
+        }
     }
 }

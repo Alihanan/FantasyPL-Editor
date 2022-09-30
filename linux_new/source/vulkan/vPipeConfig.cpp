@@ -20,7 +20,7 @@ namespace PL
         this->SetInputAssembly(VK_PRIMITIVE_TOPOLOGY_TRIANGLE_LIST, false);
         this->SetDepthClamp(false);
         this->SetPolygonFillMode(VK_POLYGON_MODE_FILL, 1.0f);
-        this->SetCullMode(VK_CULL_MODE_BACK_BIT, VK_FRONT_FACE_COUNTER_CLOCKWISE);
+        this->SetCullMode(VK_CULL_MODE_BACK_BIT, VK_FRONT_FACE_CLOCKWISE);
         this->SetDepthBias();
         this->SetMultisampling(); // turned off
         this->SetColorBlend();
@@ -150,6 +150,16 @@ namespace PL
         VK_NULL_HANDLE, 1, &(data.pipelineInfo), nullptr, graphicsPipe) != VK_SUCCESS) {
             throw std::runtime_error("failed to create graphics pipeline!");
         }
+
+        /*
+        auto& stages = data.shader->getShaderStages();
+        for(size_t i = 0; i < stages.size(); i++)
+        {
+            vkDestroyShaderModule(this->device->GetReadyDevice()->logicalDevice, 
+                                stages[i].module, nullptr);
+        }
+        */
+
         vPipeline* ret = new vPipeline(graphicsPipe, this->data.shader, device, this->swapchain);
         return ret;
     }
@@ -180,16 +190,16 @@ namespace PL
                 != VK_SUCCESS) {
             throw std::runtime_error("failed to create pipeline layout!");
         }
-        data.pipelineInfo.layout = (data.pipelineLayout);
+        data.pipelineInfo.layout = data.pipelineLayout;
 
         // Stages
         auto& stages = data.shader->getShaderStages();
+
         data.pipelineInfo.sType = VK_STRUCTURE_TYPE_GRAPHICS_PIPELINE_CREATE_INFO;
         data.pipelineInfo.stageCount = static_cast<uint32_t>(stages.size());
         data.pipelineInfo.pStages = stages.data();  
 
         // Tesellation
-        
         bool isTess = false;
         data.tesselation.sType = VK_STRUCTURE_TYPE_PIPELINE_TESSELLATION_STATE_CREATE_INFO;
         for(auto stg : stages) // if any tesellation state found
@@ -202,10 +212,8 @@ namespace PL
             }
         }
         if(!isTess)
-            data.tesselation.patchControlPoints = 1; // if none, turn it off
-        
+            data.tesselation.patchControlPoints = 1; // if none, turn it off  
         data.pipelineInfo.pTessellationState = &data.tesselation;
-        
     }
 
 }

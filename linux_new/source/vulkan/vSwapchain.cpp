@@ -30,6 +30,11 @@ namespace PL
     void vSwapchain::DeleteSwapchain()
     {
         VkDevice& ldevice = this->device->GetReadyDevice()->logicalDevice;
+        for (auto framebuffer : swapChainFramebuffers) {
+            vkDestroyFramebuffer(ldevice, 
+                                framebuffer, nullptr);
+        }     
+        swapChainFramebuffers.clear();
 
         for (auto imageView : swapChainImageViews) {
             vkDestroyImageView(ldevice, imageView, nullptr);
@@ -41,12 +46,6 @@ namespace PL
             vkDestroySwapchainKHR(ldevice, swapChain, nullptr);
             swapChain = nullptr;
         }       
-        
-        for (auto framebuffer : swapChainFramebuffers) {
-            vkDestroyFramebuffer(ldevice, 
-                                framebuffer, nullptr);
-        }     
-        swapChainFramebuffers.clear();
     }
     
     VkResult vSwapchain::AcquireImage(uint32_t* imageIndex, VkSemaphore& sem)
@@ -55,6 +54,7 @@ namespace PL
                             this->swapChain, UINT64_MAX, 
                             sem, 
                             VK_NULL_HANDLE, imageIndex);
+        
         return ret;
     }
 
@@ -147,6 +147,16 @@ namespace PL
         }
         
     }
+
+    void vSwapchain::Recreate()
+    {
+        //this->window = activeWindow;
+        this->oldSwapChain = this->swapChain;
+        this->swapChain = VK_NULL_HANDLE;
+        this->DeleteSwapchain();
+        this->Initialize(); 
+    }
+
     void vSwapchain::CreateFramebuffers()
     {
         swapChainFramebuffers.resize(this->swapChainImageViews.size());
@@ -198,7 +208,7 @@ namespace PL
     VkExtent2D vSwapchain::ChooseSWAPExtent()
     {
         auto& capabilities = this->device->GetReadyDevice()->capabilities;
-
+    
         if (capabilities.currentExtent.width != std::numeric_limits<uint32_t>::max()) {
             return capabilities.currentExtent;
         } else {
@@ -209,5 +219,14 @@ namespace PL
 
             return actualExtent;
         }
+    }
+
+    bool vSwapchain::CheckWindowResize()
+    {
+        
+        VkExtent2D extent = this->ChooseSWAPExtent();
+        bool width_eq = extent.width == this->swap_extent.width;
+        bool height_eq = extent.height == this->swap_extent.height;
+        return !(width_eq && height_eq);
     }
 }

@@ -20,8 +20,8 @@ namespace PL
         static vModel* createModelFactory(PJSON settings, vMemoryManager* manager, vShader* shader);
 
         virtual ~vModel();
-        virtual void bind(VkCommandBuffer comBuf);
-        virtual void draw(VkCommandBuffer comBuf);
+        virtual void bind(VkCommandBuffer& comBuf);
+        virtual void draw(VkCommandBuffer& comBuf);
         
         virtual uint32_t getNumberVertices() = 0;
         virtual vMemoryManager::Data processData() = 0;
@@ -85,7 +85,7 @@ namespace PL
         };
         std::vector<HeightMapChunk> heightChunks;
 
-        uint32_t quad_num = 3;
+        uint32_t quad_num = 6;
 
         uint32_t current_res_W = 10;
         uint32_t current_res_H = 10;

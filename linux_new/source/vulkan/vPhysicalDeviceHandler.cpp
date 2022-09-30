@@ -43,17 +43,20 @@ namespace PL
 
         // ask for features
         VkPhysicalDeviceFeatures deviceFeatures{};
-        deviceFeatures.tessellationShader = VK_TRUE;
-        deviceFeatures.geometryShader = VK_TRUE;
+        //deviceFeatures.tessellationShader = VK_TRUE;
+        //deviceFeatures.geometryShader = VK_TRUE;
         
         // add everything for struct
         VkDeviceCreateInfo createInfo{};
         createInfo.sType = VK_STRUCTURE_TYPE_DEVICE_CREATE_INFO;
         createInfo.pEnabledFeatures = &deviceFeatures;
-        createInfo.ppEnabledLayerNames = obligatoryLayers.data();
-        createInfo.enabledLayerCount = static_cast<uint32_t>(obligatoryLayers.size());
-        createInfo.enabledExtensionCount = static_cast<uint32_t>(obligatoryLayers.size());
-        createInfo.ppEnabledExtensionNames = obligatoryLayers.data();
+
+        createInfo.ppEnabledLayerNames = obligatoryLayersVal.data();
+        createInfo.enabledLayerCount = static_cast<uint32_t>(obligatoryLayersVal.size());
+
+        createInfo.enabledExtensionCount = static_cast<uint32_t>(obligatoryExtensions.size());
+        createInfo.ppEnabledExtensionNames = obligatoryExtensions.data();
+
         createInfo.queueCreateInfoCount = static_cast<uint32_t>(queueCreateInfos.size());
         createInfo.pQueueCreateInfos = queueCreateInfos.data();
 
@@ -230,8 +233,8 @@ namespace PL
 
         
         std::set<const char*> requiredExtensions(
-            obligatoryLayers.begin(), 
-            obligatoryLayers.end());
+            obligatoryExtensions.begin(), 
+            obligatoryExtensions.end());
 
         for (const auto& extension : candidate->availableExtensions) {   
             for(const auto& req : requiredExtensions) 

@@ -153,14 +153,26 @@ void writeInVariables()
     }
     fprintf(header_file, "        };\n");
 
+    if(IN_VAR_INDEX > 0){
     // Binding desc
-    fprintf(header_file, ""
-"        const std::vector<VkVertexInputBindingDescription> binding = \n"   
-"           {{0, sizeof(%s_Vertex), VK_VERTEX_INPUT_RATE_VERTEX}};\n\n" 
+        fprintf(header_file, ""
+    "        const std::vector<VkVertexInputBindingDescription> binding = \n"   
+    "           {{0, sizeof(%s_Vertex), VK_VERTEX_INPUT_RATE_VERTEX}};\n\n",
+
+        SHADER_NAME);
+    }
+    else {
+        fprintf(header_file, ""
+    "        const std::vector<VkVertexInputBindingDescription> binding = \n"   
+    "           {};\n\n" 
+        );
+    }
+
+    fprintf(header_file, 
 "        const std::vector<VkVertexInputBindingDescription>&\n"
 "            getBindingDescriptions()\n"
 "        {\n"
-"            return binding;\n", SHADER_NAME);
+"            return binding;\n");
     fprintf(header_file, ""
 "        }\n"
     );
@@ -169,6 +181,7 @@ void writeInVariables()
     fprintf(header_file, ""
 "        const std::vector<VkVertexInputAttributeDescription> attrib = {\n"
     );
+    
     for(int i = 0; i < IN_VAR_INDEX; i++)
     {
         Variable var = ALL_IN_VARIABLES[i];

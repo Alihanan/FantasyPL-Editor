@@ -45,7 +45,7 @@ namespace PL
         ~vModelManager();
         void readAllModelsFromJSON(std::string jsonFileName);
 
-        std::vector<VkCommandBuffer>& RecordAllPipelines(uint32_t frameIndex, uint32_t imageIndex);
+        void RecordAllPipelines(VkCommandBuffer& currentBuffer);
 
     protected:
         vMemoryManager* memoryManager;

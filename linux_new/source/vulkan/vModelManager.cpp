@@ -62,15 +62,12 @@ namespace PL
     }
 
     
-    std::vector<VkCommandBuffer>& vModelManager::RecordAllPipelines(uint32_t frameIndex, uint32_t imageIndex)
+    void vModelManager::RecordAllPipelines(VkCommandBuffer& currentBuffer)
     {
-        std::vector<VkCommandBuffer>* ret = new std::vector<VkCommandBuffer>();
         for(auto const& [key, value] : this->createdPipelines)
         {
-            value->RenderAll(frameIndex, imageIndex);
-            ret->push_back(value->GetActiveCommandBuffer(frameIndex));
+            value->RenderAll(currentBuffer);
         }
-        return *ret;
     }
 
     void vModelManager::Initialize()

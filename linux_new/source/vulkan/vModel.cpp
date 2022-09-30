@@ -44,7 +44,7 @@ namespace PL
         this->memoryManager->FreeVBOandUBO(this);
     }
 
-    void vModel::bind(VkCommandBuffer comBuf)
+    void vModel::bind(VkCommandBuffer& comBuf)
     {
         VkBuffer& buffer = this->memoryManager->GetOrAllocateVBOandUBO(this);
         VkBuffer vertexBuffers[] = {buffer};
@@ -52,9 +52,10 @@ namespace PL
         vkCmdBindVertexBuffers(comBuf, 0, 1, vertexBuffers, offsets);
     }
 
-    void vModel::draw(VkCommandBuffer comBuf)
+    void vModel::draw(VkCommandBuffer& comBuf)
     {
-        vkCmdDraw(comBuf, this->getNumberVertices(), 1, 0, 0);
+        uint32_t number = this->getNumberVertices();
+        vkCmdDraw(comBuf, number, 1, 0, 0);
     }
 
     vMemoryManager::Data vModel::processData()
@@ -132,6 +133,10 @@ namespace PL
                 vertices[W * this->current_res_H * quad_num + quad_num*H] = {bottomleft};
                 vertices[W * this->current_res_H * quad_num + quad_num*H + 1] = {bottomRight};
                 vertices[W * this->current_res_H * quad_num + quad_num*H + 2] = {topRight};
+
+                 vertices[W * this->current_res_H * quad_num + quad_num*H + 3] = {topRight};
+                vertices[W * this->current_res_H * quad_num + quad_num*H + 4] = {topLeft};
+                vertices[W * this->current_res_H * quad_num + quad_num*H + 5] = {bottomleft};
                 //vertices[W * this->current_res_H * quad_num + quad_num*H + 3] = {topLeft};
             }
         }

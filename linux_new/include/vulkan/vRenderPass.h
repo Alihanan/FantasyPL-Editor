@@ -42,7 +42,7 @@ namespace PL
 
     protected:
         vDevice* device;
-        VkRenderPass renderPass;
+        VkRenderPass renderPass {};
 
         void Initialize();
 

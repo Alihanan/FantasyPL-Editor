@@ -56,6 +56,8 @@ namespace PL
 
         VkSurfaceKHR& GetKHRSurface() { return this->khrSurface; }
 
+        void CheckMinimized();
+
     protected:
         vInstance* currentInstance;
         void Initialize();

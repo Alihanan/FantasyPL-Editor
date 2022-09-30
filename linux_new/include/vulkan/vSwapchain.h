@@ -40,12 +40,16 @@ namespace PL
         ~vSwapchain();
         size_t GetImageCount() {return this->swapChainImages.size();}
         VkRenderPass& GetRenderPass() { return this->renderPass->GetRenderPass(); }
-        std::vector<VkFramebuffer>& GetFramebuffers() { return this->swapChainFramebuffers;}
+        VkFramebuffer& GetActiveFramebuffer(uint32_t index) { return this->swapChainFramebuffers[index];}
         VkExtent2D GetExtent() { return this->swap_extent; }
 
         VkResult AcquireImage(uint32_t* imageIndex, VkSemaphore& sem);
         VkSwapchainKHR& GetSwapchain() {return this->swapChain;}
         
+        //void RecreateOnResize(vWindow* activeWindow);
+        void Recreate();
+        bool CheckWindowResize();
+
     protected:
         vDevice* device;
         vWindow* window;
@@ -68,8 +72,8 @@ namespace PL
         std::vector<VkFramebuffer> swapChainFramebuffers;
         void CreateFramebuffers();
         
-        VkPresentModeKHR swap_presentMode;
-        VkExtent2D swap_extent;
+        VkPresentModeKHR swap_presentMode {};
+        VkExtent2D swap_extent {};
         
         
         VkPresentModeKHR ChooseSWAPPresentMode();

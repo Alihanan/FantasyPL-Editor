@@ -139,9 +139,13 @@ namespace PL
 
         Prerequisities currentPrereq = prerequisiteHighSetup;
         inline static const std::string LAYER_KHR_SWAPCHAIN = "VK_KHR_swapchain";
-        inline static const std::vector<const char*> obligatoryLayers = 
+        inline static const std::vector<const char*> obligatoryExtensions = 
         {
             LAYER_KHR_SWAPCHAIN.c_str()
+        };
+        inline static const std::vector<const char*> obligatoryLayersVal = 
+        {
+            "VK_LAYER_KHRONOS_validation"
         };
     };
 }

@@ -19,9 +19,8 @@ namespace PL
         
         void AddModel(vModel* model);
         void DeleteModel(vModel* model);
-        void RenderAll(uint32_t bufferIndex, uint32_t imageIndex);
+        void RenderAll(VkCommandBuffer& currentBuffer);
         vShader* GetShader() {return this->shader; }
-        VkCommandBuffer GetActiveCommandBuffer(uint32_t bufferIndex) { return this->commandBuffers[bufferIndex]; }
 
         void SetViewport(float x, float y)
         {
@@ -47,12 +46,11 @@ namespace PL
         void Initialize();
 
         std::vector<vModel*> models;
-        void BeginRecordCommandBuffer(uint32_t bufferIndex, uint32_t imageIndex);
-        void EndRecordCommandBuffer(uint32_t bufferIndex);
+        
 
         VkViewport viewport{};
         VkRect2D scissor{};
-        void SetDynamicStates(uint32_t bufferIndex);
+        void SetDynamicStates(VkCommandBuffer& commandBuffer);
         void SetWindowExtent(uint32_t w, uint32_t h)
         {
             viewport.width = w;
@@ -60,13 +58,9 @@ namespace PL
             scissor.extent = {w, h};        
         }
 
-        VkCommandPool commandPool;
-        void createCommandPools();
+       
 
-        std::vector<VkCommandBuffer> commandBuffers;
-        void allocateCommandBuffers(uint32_t size);
-        void recreateCommandBuffers(uint32_t size);
-        void freeCommandBuffers();
+        
     };
 
 
