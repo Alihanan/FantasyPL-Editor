@@ -38,13 +38,37 @@ namespace PL
         {
             return *this->stages;
         }
-        std::string GetShaderName() { return this->name; }
 
+        virtual void InitializeLayout()
+        {
+            VkPipelineLayoutCreateInfo pipelineLayoutInfo{};
+            pipelineLayoutInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_LAYOUT_CREATE_INFO;
+            pipelineLayoutInfo.setLayoutCount = 0; // Optional
+            pipelineLayoutInfo.pSetLayouts = nullptr; // Optional
+
+            auto& pushConstRanges = this->getPushConstantRanges();
+
+            pipelineLayoutInfo.pushConstantRangeCount = static_cast<uint32_t>(pushConstRanges.size()); // Optional
+            pipelineLayoutInfo.pPushConstantRanges = pushConstRanges.data(); // Optional
+            
+            if (vkCreatePipelineLayout(this->device->GetReadyDevice()->logicalDevice,
+                    &pipelineLayoutInfo, nullptr, &this->layout) 
+                    != VK_SUCCESS) {
+                throw std::runtime_error("failed to create pipeline layout!");
+            }
+        }
+
+        std::string GetShaderName() { return this->name; }
+        VkPipelineLayout& GetPipelineLayout() { return this->layout; }
         
         virtual const std::vector<VkVertexInputBindingDescription>& 
             getBindingDescriptions() = 0;  
         virtual const std::vector<VkVertexInputAttributeDescription>& 
             getAttributeDescriptions() = 0;
+        virtual const std::vector<VkPushConstantRange>&
+            getPushConstantRanges() = 0;
+
+        virtual void pushUBOS(VkCommandBuffer buffer) = 0;
 
     protected:
         vDevice* device = nullptr;
@@ -69,6 +93,7 @@ namespace PL
         const std::string name;
         std::vector<VkPipelineShaderStageCreateInfo>* stages;
         const std::vector<std::string> files;
+        VkPipelineLayout layout;
 
         std::vector<VkPipelineShaderStageCreateInfo>* readStages(
             std::vector<std::string> files, VkDevice& device);

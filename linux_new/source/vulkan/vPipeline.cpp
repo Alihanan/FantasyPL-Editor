@@ -45,6 +45,8 @@ namespace PL
         for(auto model : this->models)
         {
             model->bind(currentBuffer);
+            model->setUniforms();
+            this->shader->pushUBOS(currentBuffer);
             model->draw(currentBuffer);
         }
 

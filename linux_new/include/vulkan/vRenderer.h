@@ -11,7 +11,7 @@ namespace PL
     class vRenderer : public IUncopiable, public IDependent
     {
     public:
-        inline const static uint32_t MAX_FRAMES_IN_FLIGHT = 2;
+        
         // IDependent
         const static std::string _DEP_ID;
         // inline const static std::vector<std::string> _DEP_NEEDED_DEPS = {
@@ -43,22 +43,17 @@ namespace PL
         void MainRenderTick(vWindow* activeWindow);
 
     protected:
-        uint32_t currentFrame = 0;
-
         vModelManager* manager;
         vDevice* device;
         vSwapchain* swapchain;
         void Initialize();
         
-        std::vector<VkSemaphore> imageAvailableSemaphores;
-        std::vector<VkSemaphore> renderFinishedSemaphores;
-        std::vector<VkFence> inFlightFences;
-        void InitializeSynchronization();
-        void DeleteSynchronization();        
+        
 
-        void BeginRecordCommandBuffer(uint32_t bufferIndex, uint32_t imageIndex);
-        void EndRecordCommandBuffer(uint32_t bufferIndex);
+        void BeginRecordCommandBuffer(uint32_t imageIndex);
+        void EndRecordCommandBuffer(uint32_t imageIndex);
 
+        uint32_t currentFrameIndex = 0;
         VkCommandPool commandPool;
         void createCommandPools();
         std::vector<VkCommandBuffer> commandBuffers;

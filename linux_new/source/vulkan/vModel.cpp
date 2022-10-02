@@ -4,6 +4,8 @@
 #include "../../include/io/PseudoJson.h"
 #include "../../include/vulkan/vDynamicShader.h"
 
+#include "../../include/external/stb_image.hpp"
+
 
 namespace PL
 {
@@ -58,6 +60,11 @@ namespace PL
         vkCmdDraw(comBuf, number, 1, 0, 0);
     }
 
+    void vModel::setUniforms()
+    {
+
+    }
+
     vMemoryManager::Data vModel::processData()
     {
         return {nullptr, 0};
@@ -106,38 +113,75 @@ namespace PL
         }
         
     }
+
+    void vTerrainModel::setUniforms()
+    {
+        static int i = 0;
+
+        auto tshader = static_cast<vShader_normal*>(this->shader);
+        vShader_normal::matrix_ubo to_send{};
+        
+        to_send.modelViewProj = glm::mat4(1.0f);
+        //to_send.modelViewProj = glmEulerRotation(0.0f, 0.0f, 0.0f);
+        // to_send.modelViewProj = glm::mat4({
+        //     {1.0f, 0.0f, 0.0f, 0.0f}, 
+        //     {0.0f, 0.0f, 1.0f, 0.0f},
+        //     {0.0f, 1.0f, 0.0f, 0.0f},
+        //     {0.0f, 0.0f, 0.0f, 1.0f}});
+        to_send.modelViewProj = glm::translate(glm::vec3(0.0f - (i % 1000) * 0.001f, 0.0f, 0.0f));
+        //to_send.modelViewProj = glm::rotate(to_send.modelViewProj, glm::radians(-75.0f), glm::vec3(1.0f, 0.0f, 0.0f));
+        //to_send.modelViewProj = glm::perspective(35.0f, 1.0f, 0.1f, 100.0f) * to_send.modelViewProj;
+        i++;
+        tshader->set_matrix(to_send);
+    }
+
     vMemoryManager::Data vTerrainModel::processData()
     {
-        vMemoryManager::Data ret;
-        //std::vector<vShader_terrain::terrain_Vertex> vertices;
-        //vShader_terrain* tshader = static_cast<vShader_terrain*>(this->shader);
+       
         uint32_t total_size = this->getNumberVertices();
         vShader_terrain::terrain_Vertex* vertices = new vShader_terrain::terrain_Vertex[total_size];
 
-        
-
-        for(uint32_t W = 0; W < this->current_res_W; W++)
+        for(size_t i = 0; i < this->heightChunks.size(); i++)
         {
-            for(uint32_t H = 0; H < this->current_res_H; H++)
+            uint32_t counter = 0;
+            this->quad_num = 6;
+
+            HeightMapChunk chunk = this->heightChunks[i];
+
+            for(uint32_t W = 0; W < this->current_res_W; W++)
             {
-                vShader_terrain::terrain_Vertex vertexToAdd;
+                for(uint32_t H = 0; H < this->current_res_H; H++)
+                {
+                    glm::vec3 center = { 
+                        ((int)(W + chunk.width_coord)) * this->chunk_size_W, 
+                        ((int)(H + chunk.height_coord)) * this->chunk_size_H, 
+                        0.5f};
+                    
+                    center = openGLToVulkanVector(center);
 
-                glm::vec3 center = { W * this->chunk_size_W, H * this->chunk_size_H, 0.0f};
+                    glm::vec3 topLeft = glm::vec3(-this->chunk_size_W / 2.0f, this->chunk_size_H / 2.0f, 0.0f);
+                    glm::vec3 topRight = glm::vec3(this->chunk_size_W / 2.0f, this->chunk_size_H / 2.0f, 0.0f);
+                    glm::vec3 bottomleft = glm::vec3(-this->chunk_size_W / 2.0f, -this->chunk_size_H / 2.0f, 0.0f);
+                    glm::vec3 bottomRight = glm::vec3(this->chunk_size_W / 2.0f, -this->chunk_size_H / 2.0f, 0.0f);
 
-                glm::vec3 topLeft = center + glm::vec3(-this->chunk_size_W / 2.0f, this->chunk_size_H / 2.0f, 0.0f);
-                glm::vec3 topRight = center + glm::vec3(this->chunk_size_W / 2.0f, this->chunk_size_H / 2.0f, 0.0f);
-                glm::vec3 bottomleft = center + glm::vec3(-this->chunk_size_W / 2.0f, -this->chunk_size_H / 2.0f, 0.0f);
-                glm::vec3 bottomRight = center + glm::vec3(this->chunk_size_W / 2.0f, -this->chunk_size_H / 2.0f, 0.0f);
+                    
+                    topLeft = openGLToVulkanVector(topLeft);
+                    topRight = openGLToVulkanVector(topRight);
+                    bottomleft = openGLToVulkanVector(bottomleft);
+                    bottomRight = openGLToVulkanVector(bottomRight);
 
-                // generate quad
-                vertices[W * this->current_res_H * quad_num + quad_num*H] = {bottomleft};
-                vertices[W * this->current_res_H * quad_num + quad_num*H + 1] = {bottomRight};
-                vertices[W * this->current_res_H * quad_num + quad_num*H + 2] = {topRight};
+                    // generate quad
+                    vertices[W * this->current_res_H * quad_num + quad_num*H] = {center + bottomleft};
+                    vertices[W * this->current_res_H * quad_num + quad_num*H + 1] = {center + bottomRight};
+                    vertices[W * this->current_res_H * quad_num + quad_num*H + 2] = {center + topRight};
 
-                 vertices[W * this->current_res_H * quad_num + quad_num*H + 3] = {topRight};
-                vertices[W * this->current_res_H * quad_num + quad_num*H + 4] = {topLeft};
-                vertices[W * this->current_res_H * quad_num + quad_num*H + 5] = {bottomleft};
-                //vertices[W * this->current_res_H * quad_num + quad_num*H + 3] = {topLeft};
+                    
+                    vertices[W * this->current_res_H * quad_num + quad_num*H + 3] = {center + topRight};
+                    vertices[W * this->current_res_H * quad_num + quad_num*H + 4] = {center + topLeft};
+                    vertices[W * this->current_res_H * quad_num + quad_num*H + 5] = {center + bottomleft};
+                    //vertices[W * this->current_res_H * quad_num + quad_num*H + 3] = {topLeft};
+
+                }
             }
         }
 

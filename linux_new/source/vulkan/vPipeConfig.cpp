@@ -20,7 +20,7 @@ namespace PL
         this->SetInputAssembly(VK_PRIMITIVE_TOPOLOGY_TRIANGLE_LIST, false);
         this->SetDepthClamp(false);
         this->SetPolygonFillMode(VK_POLYGON_MODE_FILL, 1.0f);
-        this->SetCullMode(VK_CULL_MODE_BACK_BIT, VK_FRONT_FACE_CLOCKWISE);
+        this->SetCullMode(VK_CULL_MODE_BACK_BIT, VK_FRONT_FACE_COUNTER_CLOCKWISE);
         this->SetDepthBias();
         this->SetMultisampling(); // turned off
         this->SetColorBlend();
@@ -179,18 +179,8 @@ namespace PL
         data.pipelineInfo.pVertexInputState = &(this->data.vertexInputInfo);
 
         // Uniform layout
-        VkPipelineLayoutCreateInfo pipelineLayoutInfo{};
-        pipelineLayoutInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_LAYOUT_CREATE_INFO;
-        pipelineLayoutInfo.setLayoutCount = 0; // Optional
-        pipelineLayoutInfo.pSetLayouts = nullptr; // Optional
-        pipelineLayoutInfo.pushConstantRangeCount = 0; // Optional
-        pipelineLayoutInfo.pPushConstantRanges = nullptr; // Optional
-        if (vkCreatePipelineLayout(this->device->GetReadyDevice()->logicalDevice,
-                &pipelineLayoutInfo, nullptr, &data.pipelineLayout) 
-                != VK_SUCCESS) {
-            throw std::runtime_error("failed to create pipeline layout!");
-        }
-        data.pipelineInfo.layout = data.pipelineLayout;
+        
+        data.pipelineInfo.layout = data.shader->GetPipelineLayout();
 
         // Stages
         auto& stages = data.shader->getShaderStages();

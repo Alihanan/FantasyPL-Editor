@@ -11,6 +11,8 @@ namespace PL
     class vSwapchain : public IUncopiable, public IDependent
     {
     public:
+        inline const static uint32_t MAX_FRAMES_IN_FLIGHT = 2;
+
         // IDependent
         const static std::string _DEP_ID;
         // inline const static std::vector<std::string> _DEP_NEEDED_DEPS = {
@@ -43,7 +45,9 @@ namespace PL
         VkFramebuffer& GetActiveFramebuffer(uint32_t index) { return this->swapChainFramebuffers[index];}
         VkExtent2D GetExtent() { return this->swap_extent; }
 
-        VkResult AcquireImage(uint32_t* imageIndex, VkSemaphore& sem);
+        bool AcquireImage(uint32_t* imageIndex);
+        bool SubmitCommandBuffers(const VkCommandBuffer *buffers, uint32_t *imageIndex);
+
         VkSwapchainKHR& GetSwapchain() {return this->swapChain;}
         
         //void RecreateOnResize(vWindow* activeWindow);
@@ -57,7 +61,7 @@ namespace PL
 
         void Initialize();
     private:
-
+        uint32_t currentFrame = 0;
 
         std::vector<VkImage> swapChainImages = std::vector<VkImage>();
         std::vector<VkImageView> swapChainImageViews = std::vector<VkImageView>();
@@ -65,7 +69,7 @@ namespace PL
 
         VkSwapchainKHR swapChain = VK_NULL_HANDLE;
         VkSwapchainKHR oldSwapChain = VK_NULL_HANDLE;
-        void CreateSwapchain();
+        void CreateSwapchainKHR();
         void RecreateSwapchain();
         void DeleteSwapchain();
 
@@ -79,5 +83,14 @@ namespace PL
         VkPresentModeKHR ChooseSWAPPresentMode();
         VkExtent2D ChooseSWAPExtent();
         uint32_t ChooseImageCount();
+        void InitializeSwapchain();
+
+
+        std::vector<VkSemaphore> imageAvailableSemaphores;
+        std::vector<VkSemaphore> renderFinishedSemaphores;
+        std::vector<VkFence> inFlightFences;
+        std::vector<VkFence> imagesInFlight;
+        void InitializeSynchronization();
+        void DeleteSynchronization();        
     };
 }

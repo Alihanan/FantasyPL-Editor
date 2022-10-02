@@ -7,6 +7,15 @@
 #include "vShader.h"
 
 
+#define GLFW_INCLUDE_VULKAN
+#include <GLFW/glfw3.h>
+#define GLM_FORCE_RADIANS
+#define GLM_FORCE_DEPTH_ZERO_TO_ONE
+#include <glm/glm.hpp>
+#include <glm/gtc/matrix_transform.hpp>
+#include <glm/gtx/rotate_vector.hpp>
+#include <glm/gtc/constants.hpp>
+
 #include <optional>
 
 
@@ -22,7 +31,8 @@ namespace PL
         virtual ~vModel();
         virtual void bind(VkCommandBuffer& comBuf);
         virtual void draw(VkCommandBuffer& comBuf);
-        
+        virtual void setUniforms();
+
         virtual uint32_t getNumberVertices() = 0;
         virtual vMemoryManager::Data processData() = 0;
         
@@ -51,6 +61,7 @@ namespace PL
             
         }
         vMemoryManager::Data processData();
+        
         uint32_t getNumberVertices() {return this->num_vertices;}
     protected:
         std::string filename;
@@ -72,9 +83,9 @@ namespace PL
          */
         void SetHeightMaps(std::vector<std::string> filenames);
         void SetResolution(uint32_t W, uint32_t H);
-        uint32_t getNumberVertices() {return this->current_res_W * this->current_res_H * quad_num;}
+        uint32_t getNumberVertices() {return this->current_res_W * this->current_res_H * quad_num * this->heightChunks.size();}
         vMemoryManager::Data processData();
-        
+        void setUniforms();
 
     protected:
         struct HeightMapChunk
@@ -87,10 +98,10 @@ namespace PL
 
         uint32_t quad_num = 6;
 
-        uint32_t current_res_W = 10;
-        uint32_t current_res_H = 10;
+        uint32_t current_res_W = 100;
+        uint32_t current_res_H = 100;
 
-        float chunk_size_W = 0.1f;
-        float chunk_size_H = 0.1f;
+        float chunk_size_W = 0.005f;
+        float chunk_size_H = 0.005f;
     };
 }

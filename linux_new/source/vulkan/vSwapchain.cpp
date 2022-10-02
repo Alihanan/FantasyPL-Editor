@@ -11,21 +11,27 @@ namespace PL
     {
         if(!this->isInitialized) return;
         DeleteSwapchain();
+        this->DeleteSynchronization();
     }
 
     void vSwapchain::Initialize()
     {
-        this->CreateSwapchain();
+        this->InitializeSwapchain();
+        this->InitializeSynchronization();
+        this->isInitialized = true;
+    }
+    void vSwapchain::InitializeSwapchain()
+    {
+        this->CreateSwapchainKHR();
         this->CreateImages();
         this->CreateFramebuffers();
-        this->isInitialized = true;
     }
     void vSwapchain::RecreateSwapchain()
     {
         this->oldSwapChain = this->swapChain;
         this->swapChain = VK_NULL_HANDLE;
         this->DeleteSwapchain();
-        this->Initialize(); 
+        this->InitializeSwapchain(); 
     }
     void vSwapchain::DeleteSwapchain()
     {
@@ -48,20 +54,139 @@ namespace PL
         }       
     }
     
-    VkResult vSwapchain::AcquireImage(uint32_t* imageIndex, VkSemaphore& sem)
+    bool vSwapchain::AcquireImage(uint32_t* imageIndex)
     {
-        VkResult ret = vkAcquireNextImageKHR(this->device->GetReadyDevice()->logicalDevice, 
-                            this->swapChain, UINT64_MAX, 
-                            sem, 
-                            VK_NULL_HANDLE, imageIndex);
         
-        return ret;
+        // 0. Block 
+        vkWaitForFences(device->GetReadyDevice()->logicalDevice, 
+                        1, 
+                        &inFlightFences[currentFrame], 
+                        VK_TRUE, std::numeric_limits<uint64_t>::max());
+
+        VkResult ret = vkAcquireNextImageKHR(this->device->GetReadyDevice()->logicalDevice, 
+                            this->swapChain, std::numeric_limits<uint64_t>::max(), 
+                            imageAvailableSemaphores[currentFrame], 
+                            VK_NULL_HANDLE, 
+                            imageIndex);
+        if (ret == VK_ERROR_OUT_OF_DATE_KHR) {
+            this->Recreate();
+            return false;
+        }
+        else if (ret != VK_SUCCESS && ret != VK_SUBOPTIMAL_KHR) {
+            throw std::runtime_error("failed to acquire swap chain image!");
+        }
+
+        return true;
+    }
+    bool vSwapchain::SubmitCommandBuffers(const VkCommandBuffer *buffers, uint32_t *imageIndex)
+    {
+        if (imagesInFlight[*imageIndex] != VK_NULL_HANDLE) {
+            vkWaitForFences(device->GetReadyDevice()->logicalDevice, 1, &imagesInFlight[*imageIndex], VK_TRUE, UINT64_MAX);
+        }
+        imagesInFlight[*imageIndex] = inFlightFences[currentFrame];
+
+        VkDevice& dev = this->device->GetReadyDevice()->logicalDevice;
+
+        VkSubmitInfo submitInfo = {};
+        submitInfo.sType = VK_STRUCTURE_TYPE_SUBMIT_INFO;
+        
+        VkSemaphore waitSemaphores[] = {imageAvailableSemaphores[currentFrame]};
+        VkPipelineStageFlags waitStages[] = {VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT};
+        submitInfo.waitSemaphoreCount = 1;
+        submitInfo.pWaitSemaphores = waitSemaphores;
+        submitInfo.pWaitDstStageMask = waitStages;
+
+        VkSemaphore signalSemaphores[] = {renderFinishedSemaphores[currentFrame]};
+        submitInfo.signalSemaphoreCount = 1;
+        submitInfo.pSignalSemaphores = signalSemaphores;
+       
+        submitInfo.commandBufferCount = 1;
+        submitInfo.pCommandBuffers = buffers;
+
+        
+        // 2. Reset
+        vkResetFences(dev, 1, &inFlightFences[currentFrame]);
+
+        VkResult ret = vkQueueSubmit(this->device->GetReadyDevice()->graphicsQueue, 
+                1, &submitInfo, inFlightFences[currentFrame]);
+
+        // 4. Submit
+        if (ret != VK_SUCCESS) {
+            throw std::runtime_error("failed to submit draw command buffer!");
+        }
+
+        // 5. Present
+        VkPresentInfoKHR presentInfo = {};
+        presentInfo.sType = VK_STRUCTURE_TYPE_PRESENT_INFO_KHR;
+
+        presentInfo.waitSemaphoreCount = 1;
+        presentInfo.pWaitSemaphores = signalSemaphores;
+
+        VkSwapchainKHR swapChains[] = {this->swapChain};
+        presentInfo.swapchainCount = 1;
+        presentInfo.pSwapchains = swapChains;
+        presentInfo.pImageIndices = imageIndex;
+
+        auto result = vkQueuePresentKHR(this->device->GetReadyDevice()->presentQueue, &presentInfo);
+        currentFrame = (currentFrame + 1) % MAX_FRAMES_IN_FLIGHT;
+        if (
+                result == VK_ERROR_OUT_OF_DATE_KHR || 
+                result == VK_SUBOPTIMAL_KHR ||
+                this->CheckWindowResize()
+            ) 
+        {
+            this->RecreateSwapchain();
+            return false;
+        } 
+        else if (result != VK_SUCCESS) 
+        {
+            throw std::runtime_error("failed to present swap chain image!");
+        }
+
+        return true;
+    }
+    void vSwapchain::InitializeSynchronization()
+    {
+        VkDevice& device = this->device->GetReadyDevice()->logicalDevice;
+
+        imageAvailableSemaphores.resize(MAX_FRAMES_IN_FLIGHT);
+        renderFinishedSemaphores.resize(MAX_FRAMES_IN_FLIGHT);
+        inFlightFences.resize(MAX_FRAMES_IN_FLIGHT);
+        imagesInFlight.resize(this->GetImageCount(), VK_NULL_HANDLE);
+
+        // NO PARAMS NEEDED FOR EMPTY SEMAPHORES      
+        VkSemaphoreCreateInfo semaphoreInfo{};
+        semaphoreInfo.sType = VK_STRUCTURE_TYPE_SEMAPHORE_CREATE_INFO;
+
+        VkFenceCreateInfo fenceInfo{};
+        // -> start as free(signaled) -> no waiting if no previous
+        fenceInfo.sType = VK_STRUCTURE_TYPE_FENCE_CREATE_INFO;
+        fenceInfo.flags = VK_FENCE_CREATE_SIGNALED_BIT;
+
+        for (size_t i = 0; i < MAX_FRAMES_IN_FLIGHT; i++) {
+            if (vkCreateSemaphore(device, &semaphoreInfo, nullptr, &imageAvailableSemaphores[i]) != VK_SUCCESS ||
+                vkCreateSemaphore(device, &semaphoreInfo, nullptr, &renderFinishedSemaphores[i]) != VK_SUCCESS ||
+                vkCreateFence(device, &fenceInfo, nullptr, &inFlightFences[i]) != VK_SUCCESS) {
+
+                throw std::runtime_error("failed to create synchronization objects for a frame!");
+            }
+        }
+    }
+
+    void vSwapchain::DeleteSynchronization()
+    {
+        VkDevice& device = this->device->GetReadyDevice()->logicalDevice;
+        
+        for (size_t i = 0; i < MAX_FRAMES_IN_FLIGHT; i++) {
+            vkDestroySemaphore(device, renderFinishedSemaphores[i], nullptr);
+            vkDestroySemaphore(device, imageAvailableSemaphores[i], nullptr);
+            vkDestroyFence(device, inFlightFences[i], nullptr);
+        }
     }
 
 
 
-
-    void vSwapchain::CreateSwapchain()
+    void vSwapchain::CreateSwapchainKHR()
     {
         auto readyDevice = this->device->GetReadyDevice();
 
@@ -150,6 +275,7 @@ namespace PL
 
     void vSwapchain::Recreate()
     {
+        vkDeviceWaitIdle(this->device->GetReadyDevice()->logicalDevice); 
         //this->window = activeWindow;
         this->oldSwapChain = this->swapChain;
         this->swapChain = VK_NULL_HANDLE;
@@ -199,10 +325,11 @@ namespace PL
 
         for (const auto& availablePresentMode : availablePresentModes) {
             if (availablePresentMode == VK_PRESENT_MODE_MAILBOX_KHR) {
+                printf("USING MAILBOX!\n");
                 return availablePresentMode;
             }
         }
-
+        printf("USING FIFO!\n");
         return VK_PRESENT_MODE_FIFO_KHR;
     }
     VkExtent2D vSwapchain::ChooseSWAPExtent()

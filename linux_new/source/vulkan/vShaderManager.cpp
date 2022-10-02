@@ -12,7 +12,7 @@ namespace PL
             return allShaders[shaderName];
         }
         auto shader = vShader::createShader(shaderName, this->device);
-
+        shader->InitializeLayout();
         allShaders[shaderName] = shader;
 
         return shader;

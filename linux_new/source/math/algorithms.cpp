@@ -32,4 +32,51 @@ namespace PL
 
         return wordVector;
     }
+
+    glm::mat4 glmEulerRotation(float xRotation_roll_angle, float yRotation_pitch_angle, float zRotation_yaw_angle)
+    {
+        float xRotation_roll = glm::radians(xRotation_roll_angle);
+        float yRotation_pitch = glm::radians(yRotation_pitch_angle);
+        float zRotation_yaw = glm::radians(zRotation_yaw_angle);
+
+
+        float cosX = glm::cos(xRotation_roll);
+        float sinX = glm::sin(xRotation_roll);      
+        glm::mat3 rotX = glm::mat3({
+            {cosX, sinX, 0.0f}, 
+            {-sinX, cosX, 0.0f}, 
+            {0.0f, 0.0f, 1.0f}
+            });
+
+        float cosY = glm::cos(yRotation_pitch);
+        float sinY = glm::sin(yRotation_pitch);
+        glm::mat3 rotY = glm::mat3({
+            {cosY, 0.0f, -sinY}, 
+            {0.0f, 1.0f, 0.0f},
+            {sinY, 0.0f, cosY}, 
+            });
+
+        float cosZ = glm::cos(zRotation_yaw);
+        float sinZ = glm::sin(zRotation_yaw);
+        glm::mat3 rotZ = glm::mat3({
+            {1.0f, 0.0f, 0.0f}, 
+            {0.0f, cosZ, sinZ},
+            {0.0f, -sinZ, cosZ}, 
+            });
+
+        glm::mat3 rot = rotX * rotY * rotZ;
+        
+        return glm::mat4(rot);
+    }
+
+    glm::vec4 openGLToVulkanVector(glm::vec4 vec)
+    {
+        vec.g = -vec.g;
+        return vec;
+    }
+    glm::vec3 openGLToVulkanVector(glm::vec3 vec)
+    {
+        glm::vec4 ret = openGLToVulkanVector(glm::vec4(vec, 1.0f));
+        return {ret.r, ret.g, ret.b};
+    }
 }

@@ -30,7 +30,6 @@ namespace PL
             VkPipelineMultisampleStateCreateInfo multisampling{};
             VkPipelineColorBlendAttachmentState colorBlendAttachment{};
             VkPipelineColorBlendStateCreateInfo colorBlending{};
-            VkPipelineLayout pipelineLayout{};
             VkPipelineTessellationStateCreateInfo tesselation{};
             // main info
             VkGraphicsPipelineCreateInfo pipelineInfo{};
