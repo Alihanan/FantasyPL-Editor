@@ -1,6 +1,11 @@
 #include "../../include/vulkan/vModelManager.h"
 
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wcpp"
 #include "../../include/io/PseudoJson.h"
+#pragma GCC diagnostic pop
+
+
 #include "../../include/vulkan/vModel.h"
 #include "../../include/vulkan/vPipeline.h"
 

@@ -20,8 +20,6 @@ namespace PL
 
     void vRenderer::MainRenderTick(vWindow* activeWindow)
     {
-        VkDevice& device = this->device->GetReadyDevice()->logicalDevice;
-
         // 1. Acquire + 2. Check resize
         uint32_t imageIndex;
         bool result = this->swapchain->AcquireImage(&imageIndex);
@@ -37,13 +35,14 @@ namespace PL
 
         // 4. Submit + 5. Present
         bool ret = this->swapchain->SubmitCommandBuffers(&this->commandBuffers[currentFrameIndex], &imageIndex);     
+        currentFrameIndex = (currentFrameIndex + 1) % vSwapchain::MAX_FRAMES_IN_FLIGHT;     
 
         if(!ret)
         {
             return;
         }
 
-        currentFrameIndex = (currentFrameIndex + 1) % vSwapchain::MAX_FRAMES_IN_FLIGHT;          
+             
     }
 
     void vRenderer::ResizeSwapchain()

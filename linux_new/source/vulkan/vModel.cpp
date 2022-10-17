@@ -1,7 +1,10 @@
 #include "../../include/vulkan/vModel.h"
 #include "../../include/vulkan/vPipeline.h"
 #include "../../include/math/algorithms.h"
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wcpp"
 #include "../../include/io/PseudoJson.h"
+#pragma GCC diagnostic pop
 #include "../../include/vulkan/vDynamicShader.h"
 
 #include "../../include/external/stb_image.hpp"
@@ -143,7 +146,7 @@ namespace PL
 
         for(size_t i = 0; i < this->heightChunks.size(); i++)
         {
-            uint32_t counter = 0;
+            //uint32_t counter = 0;
             this->quad_num = 6;
 
             HeightMapChunk chunk = this->heightChunks[i];

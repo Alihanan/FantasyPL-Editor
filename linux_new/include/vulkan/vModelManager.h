@@ -5,7 +5,10 @@
 
 #include "vMemoryManager.h"
 #include "vPipeConfig.h"
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wcpp"
 #include "../io/PseudoJson.h"
+#pragma GCC diagnostic pop
 
 #include <optional>
 

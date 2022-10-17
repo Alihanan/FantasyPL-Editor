@@ -1,7 +1,10 @@
 #pragma once
 
 #include "../general/IUncopiable.h"
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wcpp"
 #include "../io/PseudoJson.h"
+#pragma GCC diagnostic pop
 #include "vMemoryManager.h"
 #include "vPipeConfig.h"
 #include "vShader.h"
@@ -56,7 +59,7 @@ namespace PL
     {
     public:
         vFileModel(std::string file, vMemoryManager* manager, vShader* shader) :
-            filename(file), vModel(manager, shader) 
+            filename(file), num_vertices(0), vModel(manager, shader) 
         { 
             
         }
@@ -65,7 +68,7 @@ namespace PL
         uint32_t getNumberVertices() {return this->num_vertices;}
     protected:
         std::string filename;
-        uint32_t num_vertices = 0;
+        uint32_t num_vertices;
     };
 }
 namespace PL
