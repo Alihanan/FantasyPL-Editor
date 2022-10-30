@@ -6,9 +6,9 @@
 
 typedef unsigned int uint32_t;
 
-const char* TMP_HEADER = "./vulkan/v_global_renderer/v_pipeline/v_shader/v_dyn_shader.tmp";
-const char* HEADER_TO_CREATE = "./vulkan/v_global_renderer/v_pipeline/v_shader/v_dyn_shader.h";
-const char* CPP_TO_CREATE = "./vulkan/v_global_renderer/v_pipeline/v_shader/v_dyn_shader.cpp";
+const char* TMP_HEADER = "./include/vulkan/vDynamicShader.tmp";
+const char* HEADER_TO_CREATE = "./include/vulkan/vDynamicShader.h";
+const char* CPP_TO_CREATE = "./source/vulkan/vDynamicShader.cpp";
 
 typedef struct _struct_SHADERNAME
 {
@@ -26,30 +26,32 @@ void addShaderClass(char* string, uint32_t size)
     while(true)
     {
         if(currIndex >= size) exit(-1);
-        if(currIndex >= 100) exit(-1);
+        //if(currIndex >= 100) exit(-1);
         char c = string[currIndex];
-        if(c == '_') break;
+        if(c == '_' || c=='(' || c == ' ') break;
         FOUND_SHADERS[NUM_FOUND_SHADERS].name[currIndex] = c;
         currIndex++;
     }
+
+    printf("Found name of size: %d\n", currIndex);
+
     FOUND_SHADERS[NUM_FOUND_SHADERS].name[currIndex] = '\0';
 
     FOUND_SHADERS[NUM_FOUND_SHADERS].className[0] = 'v';
-    FOUND_SHADERS[NUM_FOUND_SHADERS].className[1] = '_';
+    FOUND_SHADERS[NUM_FOUND_SHADERS].className[1] = 'S';
+    FOUND_SHADERS[NUM_FOUND_SHADERS].className[2] = 'h';
+    FOUND_SHADERS[NUM_FOUND_SHADERS].className[3] = 'a';
+    FOUND_SHADERS[NUM_FOUND_SHADERS].className[4] = 'd';
+    FOUND_SHADERS[NUM_FOUND_SHADERS].className[5] = 'e';
+    FOUND_SHADERS[NUM_FOUND_SHADERS].className[6] = 'r';
+    FOUND_SHADERS[NUM_FOUND_SHADERS].className[7] = '_';
 
     for(int i = 0; i < currIndex; i++)
     {
-        FOUND_SHADERS[NUM_FOUND_SHADERS].className[i + 2] = 
+        FOUND_SHADERS[NUM_FOUND_SHADERS].className[i + 8] = 
             FOUND_SHADERS[NUM_FOUND_SHADERS].name[i];
     }
-    FOUND_SHADERS[NUM_FOUND_SHADERS].className[currIndex + 2] = '_';
-    FOUND_SHADERS[NUM_FOUND_SHADERS].className[currIndex+3] = 's';
-    FOUND_SHADERS[NUM_FOUND_SHADERS].className[currIndex+4] = 'h';
-    FOUND_SHADERS[NUM_FOUND_SHADERS].className[currIndex+5] = 'a';
-    FOUND_SHADERS[NUM_FOUND_SHADERS].className[currIndex+6] = 'd';
-    FOUND_SHADERS[NUM_FOUND_SHADERS].className[currIndex+7] = 'e';
-    FOUND_SHADERS[NUM_FOUND_SHADERS].className[currIndex+8] = 'r';
-    FOUND_SHADERS[NUM_FOUND_SHADERS].className[currIndex+9] = '\0';
+    FOUND_SHADERS[NUM_FOUND_SHADERS].className[currIndex+8] = '\0';
 
 
     NUM_FOUND_SHADERS++;
@@ -59,22 +61,23 @@ void findAllShaderClasses()
 {
     FILE* f = fopen(TMP_HEADER, "r");
     char buffer[1024];
-    const char* prefix = "    class v_";
-    char f_prefix[13];
+    const char* prefix = "    class vShader_";
+    char f_prefix[19];
     while(true)
     {
         char* ret = fgets(buffer, 1024, f);
         if(ret == NULL) break;
         uint32_t len = strlen(buffer);
-        if(len < 13)
+        if(len < 19)
         {
             continue;
         }
-        strncpy(f_prefix, buffer, 12);
-        f_prefix[12] = 0;
+        strncpy(f_prefix, buffer, 18);
+        f_prefix[18] = 0;
+        
         if(strcmp(f_prefix, prefix) == 0)
         {
-            addShaderClass(buffer+12, 1024-13);
+            addShaderClass(buffer+18, 1024-18);
         }
 
     }
@@ -119,29 +122,32 @@ char* extractName(const char* fullname)
 
 void writeStaticFactory(FILE* f)
 {
-    fprintf(f, "#include \"v_dyn_shader.h\"\n\n\n");
+    fprintf(f, "#include \"../../include/vulkan/vDynamicShader.h\"\n\n\n");
 
     fprintf(f, "namespace PL {\n");
     fprintf(f, "    "
-    "va_shader* va_shader::createShader(std::string name, VkDevice& device)\n");
+    "vShader* vShader::createShader(std::string name, vDevice* device)\n");
     fprintf(f, "    {\n");
-    fprintf(f, "        if(va_shader::ALL_SHADERS_USED.find(name) "
-                "!= va_shader::ALL_SHADERS_USED.end())\n"
+    fprintf(f, "        if(vShader::ALL_SHADERS_USED.find(name) "
+                "!= vShader::ALL_SHADERS_USED.end())\n"
             "        {\n"
-            "            return va_shader::ALL_SHADERS_USED[name];\n"
-            "        }\n\n");
+            "            return vShader::ALL_SHADERS_USED[name];\n"
+            "        }\n");
+    fprintf(f, "        // START OF FACTORY\n\n");
 
     for(int i = 0; i < NUM_FOUND_SHADERS; i++)
     {
         ShaderName name = FOUND_SHADERS[i];
         fprintf(f, "        if(name == std::string(\"%s\")) {\n", name.name);
-        fprintf(f, "            va_shader::ALL_SHADERS_USED[name] = new %s(device);\n", name.className);
+        fprintf(f, "            vShader::ALL_SHADERS_USED[name] = new %s(device);\n", name.className);
         fprintf(f, "        }\n\n");
     }
-    fprintf(f, "        if(va_shader::ALL_SHADERS_USED.find(name) "
-                "!= va_shader::ALL_SHADERS_USED.end())\n"
+
+    fprintf(f, "        // END OF FACTORY\n");
+    fprintf(f, "        if(vShader::ALL_SHADERS_USED.find(name) "
+                "!= vShader::ALL_SHADERS_USED.end())\n"
             "        {\n"
-            "            return va_shader::ALL_SHADERS_USED[name];\n"
+            "            return vShader::ALL_SHADERS_USED[name];\n"
             "        }\n\n");
 
     fprintf(f, "        return nullptr;\n");

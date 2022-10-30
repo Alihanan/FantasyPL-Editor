@@ -8,8 +8,9 @@
 #define MAX_NUM_UBOS 10
 #define MAX_NUM_VARS 20
 #define NUM_ALIGN_TYPES 6
+#define NUM_STAGES 5
 
-const char* HEADER_TO_CREATE = "./vulkan/v_global_renderer/v_pipeline/v_shader/v_dyn_shader.tmp";
+const char* HEADER_TO_CREATE = "./include/vulkan/vDynamicShader.tmp";
 char* SHADER_NAME;
 const char* CURRENT_FILE_EXT;
 FILE* header_file;
@@ -29,13 +30,25 @@ typedef struct
     UTypeVariable var;
 } Variable;
 
+typedef struct 
+{
+    char* stageFileExt;
+    char* stageVulkanName;
+} ShaderStage;
+
 typedef struct structUBO
 {
     int binding;
     char name[20];
+    
     Variable variables[20];
     uint32_t num_vars;
+
+    uint32_t num_stages;
+    const char* stages[10];
 } UBO;
+
+
 
 
 const UTypeVariable align_vars[NUM_ALIGN_TYPES] = {
@@ -46,6 +59,16 @@ const UTypeVariable align_vars[NUM_ALIGN_TYPES] = {
     {"float", 4, false, "VK_FORMAT_R32_SFLOAT"},
     {"int", 4, false, "VK_FORMAT_R32_SINT"},
 };
+
+const ShaderStage SHADER_STAGES[NUM_STAGES] = {
+    {".vert", "VK_SHADER_STAGE_VERTEX_BIT"}, 
+    {".frag", "VK_SHADER_STAGE_FRAGMENT_BIT"}, 
+    {".geom", "VK_SHADER_STAGE_GEOMETRY_BIT"},
+    {".tesc", "VK_SHADER_STAGE_TESSELLATION_CONTROL_BIT"},
+    {".tese", "VK_SHADER_STAGE_TESSELLATION_EVALUATION_BIT"},
+};
+
+
 UTypeVariable getTypeFromString(const char* str)
 {
     for(int i = 0; i < NUM_ALIGN_TYPES; i++)
@@ -115,7 +138,6 @@ char* extractName(const char* fullname)
     return ret;
 }
 
-
 void writeSingleVar(Variable var, bool isAlign)
 {
     if(isAlign)
@@ -153,14 +175,26 @@ void writeInVariables()
     }
     fprintf(header_file, "        };\n");
 
+    if(IN_VAR_INDEX > 0){
     // Binding desc
-    fprintf(header_file, ""
-"        const std::vector<VkVertexInputBindingDescription> binding = \n"   
-"           {{0, sizeof(%s_Vertex), VK_VERTEX_INPUT_RATE_VERTEX}};\n\n" 
+        fprintf(header_file, ""
+    "        const std::vector<VkVertexInputBindingDescription> binding = \n"   
+    "           {{0, sizeof(%s_Vertex), VK_VERTEX_INPUT_RATE_VERTEX}};\n\n",
+
+        SHADER_NAME);
+    }
+    else {
+        fprintf(header_file, ""
+    "        const std::vector<VkVertexInputBindingDescription> binding = \n"   
+    "           {};\n\n" 
+        );
+    }
+
+    fprintf(header_file, 
 "        const std::vector<VkVertexInputBindingDescription>&\n"
 "            getBindingDescriptions()\n"
 "        {\n"
-"            return binding;\n", SHADER_NAME);
+"            return binding;\n");
     fprintf(header_file, ""
 "        }\n"
     );
@@ -169,6 +203,7 @@ void writeInVariables()
     fprintf(header_file, ""
 "        const std::vector<VkVertexInputAttributeDescription> attrib = {\n"
     );
+    
     for(int i = 0; i < IN_VAR_INDEX; i++)
     {
         Variable var = ALL_IN_VARIABLES[i];
@@ -188,12 +223,41 @@ void writeInVariables()
 
 void writeUBOS()
 {
+    fprintf(header_file, "        "
+        "const std::vector<VkPushConstantRange> pushConstRanges = {\n");
+
+    for(int i = 0; i < UBO_INDEX; i++)
+    {
+        
+        fprintf(header_file, "        "
+            "   { ");
+
+        fprintf(header_file, "%s ", ALL_UBOS[i].stages[0]);
+        for(int j = 1; j < ALL_UBOS[i].num_stages; j++)
+        {
+            fprintf(header_file, "| %s", ALL_UBOS[i].stages[j]);
+        }
+
+        fprintf(header_file, ", 0, sizeof(%s_ubo)},\n", ALL_UBOS[i].name);
+    }
+
+
+
+    fprintf(header_file, "        "
+        "};\n");
+    fprintf(header_file, "        "
+        "const std::vector<VkPushConstantRange>& getPushConstantRanges() {\n");
+    fprintf(header_file, "        "
+        "   return pushConstRanges;\n");
+    fprintf(header_file, "        "
+        "};\n");
+
     for(int i = 0; i < UBO_INDEX; i++)
     {
         // Add struct type
         UBO* ubo = &ALL_UBOS[i];
         fprintf(header_file, "        "
-            "struct %s_%s_ubo{\n", SHADER_NAME, ubo->name);
+            "struct %s_ubo{\n", ubo->name);
 
         for(int v = 0; v < ubo->num_vars; v++)
         {
@@ -204,31 +268,104 @@ void writeUBOS()
             "};\n");
 
 
+        
+
         // getters + setters for struct
         fprintf(header_file, "        "
-                "%s_%s_ubo %s_ubo;\n\n", SHADER_NAME, ubo->name, ubo->name);
+                "%s_ubo %s;\n\n", ubo->name, ubo->name);
 
         fprintf(header_file, "        "
-                "%s_%s_ubo get_ubo_%s()\n"
+                "%s_ubo get_%s()\n"
                 "        "
-                " { return this->%s_ubo; }\n\n",
-                SHADER_NAME, ubo->name, ubo->name, ubo->name);
+                " { return this->%s; }\n\n",
+                ubo->name, ubo->name, ubo->name);
 
         fprintf(header_file, "        "
-                "void set_ubo_%s(%s_%s_ubo in) \n"
+                "void set_%s(%s_ubo in) \n"
                 "        "
-                "{ this->%s_ubo = in; } // TODO add pushing to pipeline etc \n",
-                ubo->name, SHADER_NAME, ubo->name, ubo->name);
+                "{\n"
+                "        "
+                "   this->%s = in;\n"
+                ,
+                ubo->name, ubo->name, ubo->name);
+        
+        
+        
 
+        fprintf(header_file, "        "
+                    "}");
+        
     }
     
     // TODO
     fprintf(header_file, "\n        "
-                "void pushUBOS() {} \n\n");
+                "void pushUBOS(VkCommandBuffer buffer) {\n");
+    for(int i = 0; i < UBO_INDEX; i++)
+    {  
+        UBO* ubo = &ALL_UBOS[i];
+        fprintf(header_file, "        "
+                    "    vkCmdPushConstants(buffer, this->layout, \n                ");
+        fprintf(header_file, "%s ", ALL_UBOS[i].stages[0]);
+        for(int j = 1; j < ALL_UBOS[i].num_stages; j++)
+        {
+            fprintf(header_file, "| %s", ALL_UBOS[i].stages[j]);
+        }
+        fprintf(header_file, ",\n                0, sizeof(%s_ubo),\n", ubo->name);
+        fprintf(header_file, "                &this->%s\n            );\n", ubo->name);
+    }
     fprintf(header_file, "        "
-                "void allocateUBOS() {} \n\n");
+                    "}\n");
+
+}
 
 
+const char* getCurrentStage()
+{
+    printf("Current shader: %s\n", CURRENT_FILE_EXT);
+    for(int i = 0; i < NUM_STAGES; i++)
+    {
+        if(strcmp(SHADER_STAGES[i].stageFileExt, CURRENT_FILE_EXT) == 0)
+        {
+            printf("Vulkan name: %s\n", SHADER_STAGES[i].stageVulkanName);
+            return SHADER_STAGES[i].stageVulkanName;
+        }
+    }
+    return NULL;
+}
+
+
+bool checkIfUBOExists()
+{
+    const char* currentName = ALL_UBOS[UBO_INDEX].name;
+    
+    for(int i = 0; i < UBO_INDEX; i++)
+    {
+        if(strcmp(currentName, ALL_UBOS[i].name) == 0)
+        {
+            
+            ALL_UBOS[i].stages[ALL_UBOS[i].num_stages] = getCurrentStage();
+            ALL_UBOS[i].num_stages++;
+            printf("Adding stage: %d : %s\n", ALL_UBOS[i].num_stages, ALL_UBOS[i].stages[ALL_UBOS[i].num_stages - 1]);
+
+            ALL_UBOS[UBO_INDEX].name[0] = 0;
+            for(int i = 0; i < ALL_UBOS[UBO_INDEX].num_vars; i++)
+            {
+                ALL_UBOS[UBO_INDEX].variables[i].name[0] = 0;
+            }
+            ALL_UBOS[UBO_INDEX].num_vars = 0;
+            UBO_INDEX--;
+
+            
+
+            return true;
+        }
+    }
+
+    uint32_t curr_num = ALL_UBOS[UBO_INDEX].num_stages;
+    ALL_UBOS[UBO_INDEX].stages[curr_num] = getCurrentStage();
+    ALL_UBOS[UBO_INDEX].num_stages = 1;
+    printf("Adding stage: %d : %s\n", ALL_UBOS[UBO_INDEX].num_stages, ALL_UBOS[UBO_INDEX].stages[ALL_UBOS[UBO_INDEX].num_stages - 1]);
+    return false;
 }
 
 
@@ -236,12 +373,21 @@ bool insideUBO = false;
 
 void processStartUBO(char** statement, int index)
 {
-    printf("UBO: %s {\n", statement[7]);
-    strncpy(ALL_UBOS[UBO_INDEX].name, statement[7], 20);
-    ALL_UBOS[UBO_INDEX].binding = atoi(statement[4]);
+    printf("UBO: %s {\n", statement[5]);
+    //strncpy(ALL_UBOS[UBO_INDEX].name, statement[5], 20);
+    //ALL_UBOS[UBO_INDEX].binding = atoi(statement[4]);
 }
 void processAddVarUBO(char** statement, int index)
 {
+    if(strcmp(statement[1], ";") == 0)
+    {
+        strncpy(ALL_UBOS[UBO_INDEX].name, statement[0], 20);
+        UBO_INDEX++;
+        insideUBO = false;
+        printf("END OF UBO\n");
+        return;
+    }
+
     uint32_t current = ALL_UBOS[UBO_INDEX].num_vars;
     ALL_UBOS[UBO_INDEX].variables[current].var = getTypeFromString(statement[0]);
     strncpy(ALL_UBOS[UBO_INDEX].variables[current].name, statement[1], 20);
@@ -251,7 +397,12 @@ void processAddVarUBO(char** statement, int index)
 void processEndUBO(char** statement, int index)
 {
     printf("}\n");
-    UBO_INDEX++;
+    bool ret = checkIfUBOExists();
+    if(ret)
+    {
+        insideUBO = false;
+    }
+    //UBO_INDEX++;
 }
 void processVariable(char** statement, int index)
 {
@@ -271,22 +422,29 @@ void processVariable(char** statement, int index)
 
 void processStatement(char** statement, int index)
 {
+    for(int i = 0; i < index; i++)
+    {
+        printf("[%s] ", statement[i]);
+    }
+    printf("\n");
+    
+
     if(strcmp(statement[0], "}") == 0)
     {
         if(insideUBO)
             processEndUBO(statement, index);
-        insideUBO = false;
+        //insideUBO = false;
         return;
     }
     else if(
-        (strcmp(statement[2], "binding") == 0 )&&
-        (strcmp(statement[6], "uniform") == 0) &&
-        (strcmp(statement[8], "{") == 0))
+        (strcmp(statement[2], "push_constant") == 0 )&&
+        (strcmp(statement[4], "uniform") == 0) &&
+        (strcmp(statement[6], "{") == 0))
     {
         insideUBO = true;
         processStartUBO(statement, index);
     }
-    else if(!insideUBO && strcmp(statement[0], "layout") != 0)
+    else if(!insideUBO && (strcmp(statement[0], "layout") != 0))
     {
         return;
     }
@@ -499,7 +657,7 @@ void createHeader()
 
     header_file = fopen(HEADER_TO_CREATE, "w"); // "a" 
     fprintf(header_file, "#pragma once\n");
-    fprintf(header_file, "#include \"va_shader.h\"\n\n\n");
+    fprintf(header_file, "#include \"vShader.h\"\n\n\n");
 }
 void startProtectedHeaderClass()
 {
@@ -519,18 +677,18 @@ void beginHeaderClass(int argc, char** argv)
     
     fprintf(header_file, "\n");
     fprintf(header_file, "namespace PL{\n");
-    fprintf(header_file, "    class v_%s_shader : public va_shader\n", SHADER_NAME);
+    fprintf(header_file, "    class vShader_%s : public vShader\n", SHADER_NAME);
     fprintf(header_file, "    {\n");
     fprintf(header_file, "    public:\n");
-    fprintf(header_file, "        v_%s_shader(VkDevice& device)\n", SHADER_NAME);
-    fprintf(header_file, "            : va_shader({\n            ");
+    fprintf(header_file, "        vShader_%s(vDevice* device)\n", SHADER_NAME);
+    fprintf(header_file, "            : vShader({\n            ");
     for(int i = 1; i < argc; i++)
     {
         fprintf(header_file, "\"%s\",", argv[i]);
     }
     fprintf(header_file, "\n            }, device)\n");
     fprintf(header_file, "        {}\n");
-    fprintf(header_file, "        ~v_%s_shader() {}\n", SHADER_NAME);
+    fprintf(header_file, "        ~vShader_%s() {}\n", SHADER_NAME);
     
 }
 void endHeaderClass()
