@@ -1,6 +1,5 @@
 #include "../../include/vulkan/vInstance.h"
 #include "../../include/math/algorithms.h"
-#include "../../include/vulkan/vApplication.h"
 
 namespace PL
 {   
@@ -112,12 +111,13 @@ namespace PL
 
         if(diff.size() != 0)
         {
+            /*
            RenderSubsystem::GLOBAL_LOGGER << LOG_MSG_ERROR << "Needed layers not supported on your system! (" << diff.size() 
             << " of " << this->layers->size() <<
             " not supported!)" << std::endl;
             for(const auto& elem : diff){
                 RenderSubsystem::GLOBAL_LOGGER << LOG_MSG_ERROR << '\t' << elem << std::endl;
-            }  
+            }  */
 
             throw std::runtime_error("Layers check failed!");  
         }
@@ -173,13 +173,14 @@ namespace PL
 
         if(diff.size() != 0)
         {
+            /*
            RenderSubsystem::GLOBAL_LOGGER << LOG_MSG_ERROR << "Needed extensions not supported on your system! (" << diff.size() 
             << " of " << this->extensions->size() <<
             " not supported!)" << std::endl;
             for(const auto& elem : diff){
                 RenderSubsystem::GLOBAL_LOGGER << LOG_MSG_ERROR << '\t' << elem << std::endl;
             }  
-
+            */
             throw std::runtime_error("Extension check failed!");  
         }
     }   
@@ -212,14 +213,14 @@ namespace PL
             void* pUserData) 
     {
         if(messageSeverity != VK_DEBUG_UTILS_MESSAGE_SEVERITY_VERBOSE_BIT_EXT)
-            RenderSubsystem::GLOBAL_LOGGER << LOG_MSG_ERROR << "validation layer: " << pCallbackData->pMessage << std::endl;
+            //RenderSubsystem::GLOBAL_LOGGER << LOG_MSG_ERROR << "validation layer: " << pCallbackData->pMessage << std::endl;
 
         return VK_FALSE;
     }
     
     static void glfwErrorCallback(int code, const char* description)
     {
-        RenderSubsystem::GLOBAL_LOGGER << LOG_MSG_ERROR << "GLFW Error " << code << ": " << description << std::endl;
+        //RenderSubsystem::GLOBAL_LOGGER << LOG_MSG_ERROR << "GLFW Error " << code << ": " << description << std::endl;
     }
 
     void vInstance::InitializeDebugger()

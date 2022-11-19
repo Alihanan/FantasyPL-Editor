@@ -13,7 +13,7 @@ namespace PL
         SETG_LOGGER_TYPE, SETG_LOGGER_VERBOSITY
     };
 
-    std::map<PLSetting, std::any> DEFAULT_SETTINGS =
+    inline static std::map<PLSetting, std::any> DEFAULT_SETTINGS =
     {
         {SETG_LOGGER_TYPE, LOGGER_TYPE_STDOUT},
         {SETG_LOGGER_VERBOSITY, LOGGER_VERB_ALL}

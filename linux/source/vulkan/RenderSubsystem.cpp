@@ -3,25 +3,26 @@
 
 namespace PL
 {
+    /*
     LoggerSubsystem RenderSubsystem::GLOBAL_LOGGER = Logger(
         RenderSubsystem::LOGGER_TYPE, 
         RenderSubsystem::LOGGER_VERBOSITY);
 
-
+    */
     const std::string RenderSubsystem::_DEP_ID = IDependent::type(RenderSubsystem());    
 
     void RenderSubsystem::Initialize()
     {
-        
+        //this->active_window = this->wi
     }
     RenderSubsystem::~RenderSubsystem()
     {
 
     }
-    void RenderSubsystem::MainTick()
+    bool RenderSubsystem::MainTick()
     {
         
-        if(this->active_window->MainShouldClose()) return;
+        if(this->active_window->MainShouldClose()) return false;
         vWindow::MainAllWindowGLFWTick();
 
         //uint32_t winCounter = 0;
@@ -39,6 +40,8 @@ namespace PL
         // }
         //if(winCounter == 0) break;
         this->active_window->CheckMinimized();
+        
         this->renderer->MainRenderTick(this->active_window);
+        return true;
     }
 }

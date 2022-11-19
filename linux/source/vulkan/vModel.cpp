@@ -9,20 +9,32 @@
 
 #include "../../include/external/stb_image.hpp"
 
+#include "../../include/game/GOTransform.h"
 
 namespace PL
 {
-    vModel* vModel::createModelFactory(PJSON settings, vMemoryManager* manager, vShader* shader)
+    vModel* vModel::createModelFactory(ModelTypeID type, vMemoryManager* manager, vShader* shader)
     {
-        if(!settings.hasKey("type") || !settings.hasKey("src"))
+        
+
+        if(vModel::activeModels.count(type) > 0)
         {
-            throw std::runtime_error("Wrong JSON format for model definition!" + settings.ToString());
+            return vModel::activeModels[type];
         }
 
-        auto& src = settings["src"];
-        std::string type = settings["type"].ToString();
-        
         vModel* ret;
+        switch(type)
+        {
+            case TERRAIN_MODEL:
+            {
+                vTerrainModel* terrain = new vTerrainModel(manager, shader);
+                ret = terrain;
+                break;
+            }
+        }
+        return ret;
+
+        /*
         if(type == "terrain")
         {
             vTerrainModel* terrain = new vTerrainModel(manager, shader);
@@ -40,13 +52,17 @@ namespace PL
             vFileModel* fModel = new vFileModel(src.ToString(), manager, shader);
             ret = fModel;
         }
-
+        */
         return ret;
     }
 
     vModel::~vModel()
     {
         this->memoryManager->FreeVBOandUBO(this);
+    }
+
+    void vModel::setParams(GameModel* paramHolder)
+    {
     }
 
     void vModel::bind(VkCommandBuffer& comBuf)
@@ -117,14 +133,45 @@ namespace PL
         
     }
 
-    void vTerrainModel::setUniforms()
+    void vTerrainModel::setParams(GameModel* paramHolder)
     {
+        std::string* str = static_cast<std::string*>(paramHolder->Param(PARAM_HEIGHTMAP));
+        this->SetHeightMaps({*str});
+
+        auto transform = static_cast<GOTransform*>(paramHolder->Param(PARAM_TRANSFORM))->M();
+
         static int i = 0;
 
         auto tshader = static_cast<vShader_normal*>(this->shader);
         vShader_normal::matrix_ubo to_send{};
         
-        to_send.modelViewProj = glm::mat4(1.0f);
+
+
+        //to_send.modelViewProj = transform;
+        //to_send.modelViewProj = glmEulerRotation(0.0f, 0.0f, 0.0f);
+        // to_send.modelViewProj = glm::mat4({
+        //     {1.0f, 0.0f, 0.0f, 0.0f}, 
+        //     {0.0f, 0.0f, 1.0f, 0.0f},
+        //     {0.0f, 1.0f, 0.0f, 0.0f},
+        //     {0.0f, 0.0f, 0.0f, 1.0f}});
+        to_send.modelViewProj = glm::translate(transform, glm::vec3(0.0f - (i % 1000) * 0.001f, 0.0f, 0.0f));
+        //to_send.modelViewProj = glm::rotate(to_send.modelViewProj, glm::radians(-75.0f), glm::vec3(1.0f, 0.0f, 0.0f));
+        //to_send.modelViewProj = glm::perspective(35.0f, 1.0f, 0.1f, 100.0f) * to_send.modelViewProj;
+        i++;
+        tshader->set_matrix(to_send);
+    }
+
+    void vTerrainModel::setUniforms()
+    {
+        /*
+        static int i = 0;
+
+        auto tshader = static_cast<vShader_normal*>(this->shader);
+        vShader_normal::matrix_ubo to_send{};
+        
+
+
+        to_send.modelViewProj = this->transform;
         //to_send.modelViewProj = glmEulerRotation(0.0f, 0.0f, 0.0f);
         // to_send.modelViewProj = glm::mat4({
         //     {1.0f, 0.0f, 0.0f, 0.0f}, 
@@ -136,6 +183,7 @@ namespace PL
         //to_send.modelViewProj = glm::perspective(35.0f, 1.0f, 0.1f, 100.0f) * to_send.modelViewProj;
         i++;
         tshader->set_matrix(to_send);
+        */
     }
 
     vMemoryManager::Data vTerrainModel::processData()

@@ -5,6 +5,7 @@
 #include "vSwapchain.h"
 #include "vDevice.h"
 #include "vModelManager.h"
+#include "../game/ModelDefines.h"
 
 namespace PL
 {
@@ -32,6 +33,8 @@ namespace PL
         {
             
         }
+
+        void UpdatePipelineModels(std::vector<GameModel*>* renderObjects);
 
         std::string GetDependencyID()
         {

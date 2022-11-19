@@ -11,7 +11,7 @@
 #pragma GCC diagnostic pop
 
 #include <optional>
-
+#include "../game/ModelDefines.h"
 
 namespace PL
 {
@@ -46,7 +46,9 @@ namespace PL
         }
 
         ~vModelManager();
-        void readAllModelsFromJSON(std::string jsonFileName);
+        //void readAllModelsFromJSON(std::string jsonFileName);
+
+        void ReplaceRenderModels(std::vector<GameModel*>* models);
 
         void RecordAllPipelines(VkCommandBuffer& currentBuffer);
 
@@ -56,6 +58,10 @@ namespace PL
 
         void Initialize();
         void readShaderInfo(PJSON settings);
+
+
+        void setInputVertType(InputVertType type);
+        void setShader(std::string shaderName);
 
         std::map<std::string, vPipeline*> createdPipelines;
 

@@ -1,10 +1,10 @@
 #pragma once
 
-#include "GOTransform.h"
-#include "../vulkan/vModel.h"
-#include "../general/IUncopiable.h"
-#include "InputSubsystem.h"
 
+#include "../general/IUncopiable.h"
+#include "../io/InputSubsystem.h"
+#include "ModelDefines.h"
+#include "GOTransform.h"
 #include <vector>
 
 namespace PL
@@ -15,6 +15,7 @@ namespace PL
         using id_t = uint32_t;
 
         virtual ~IGameObject() = 0;
+        const id_t GetGOID() { return this->id; }
 
         virtual void OnKeyEvent(PLKeyCode key, PLKeyEvent event)  {}
         virtual std::vector<std::pair<PLKeyCode, PLKeyEvent>> SubscribeToKeys() {
@@ -24,22 +25,36 @@ namespace PL
         virtual void OnUpdate() = 0;
         virtual void OnStart() = 0;
 
-        const id_t GetGOID() { return this->id; }
-
         // move/assignment operators are enabled
         IGameObject(IGameObject &&) = default;
         IGameObject &operator=(IGameObject &&) = default;
+        std::vector<IGameObject*> GetChildrenGO() { return this->children; }
 
-        const std::vector<vModel*> GetModel() {return this->renderModel;}
-        glm::mat4 GetModelMatrix() {return this->transform.M();}
+        virtual void GetModel(std::vector<GameModel*>* total_render_vector) final{
+            for(GameModel* gm : this->renderModels)
+            {
+                total_render_vector->push_back(gm);
+            }
+            
+            for(IGameObject* children : this->children)
+            {
+                children->GetModel(total_render_vector);
+            }
+        }
+
+        bool ShouldRender() { return true; }        
+        GOTransform& transf() { return transform;}
 
     protected:
         GOTransform transform {};
-        std::vector<vModel*> renderModel;
+        std::vector<GameModel*> renderModels;
         id_t id;
 
-        IGameObject() : id(GLOBAL_CURRENT_ID++)
+        IGameObject(IGameObject* parent) : id(GLOBAL_CURRENT_ID++), parent(parent)
         {}
+
+        IGameObject* parent = nullptr;
+        std::vector<IGameObject*> children {};
 
     private:
         inline static uint32_t GLOBAL_CURRENT_ID = 0;

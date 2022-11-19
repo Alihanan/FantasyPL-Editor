@@ -8,6 +8,8 @@
 #include "vModel.h"
 #include "vSwapchain.h"
 
+#include <utility>
+
 namespace PL
 {
     class vPipeline : IUncopiable
@@ -17,8 +19,7 @@ namespace PL
         vPipeline(VkPipeline* pipe, vShader* shader, vDevice* device, vSwapchain* swapchain);
         ~vPipeline();
         
-        void AddModel(vModel* model);
-        void DeleteModel(vModel* model);
+        void SetModels(std::vector<std::pair<vModel*, GameModel*>>* changedModels);
         void RenderAll(VkCommandBuffer& currentBuffer);
         vShader* GetShader() {return this->shader; }
 
@@ -45,7 +46,7 @@ namespace PL
         vSwapchain* swapchain;
         void Initialize();
 
-        std::vector<vModel*> models;
+        std::vector<std::pair<vModel*, GameModel*>>* models = nullptr;
         
 
         VkViewport viewport{};

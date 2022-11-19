@@ -1,5 +1,4 @@
 #include "../../include/vulkan/vPhysicalDeviceHandler.h"
-#include "../../include/vulkan/vApplication.h"
 
 #include <cstring>
 #include <set>
@@ -120,7 +119,7 @@ namespace PL
 
         if(deviceCount == 0)
         {
-            RenderSubsystem::GLOBAL_LOGGER << LOG_MSG_ERROR << "No GPU found!" << std::endl;
+            //RenderSubsystem::GLOBAL_LOGGER << LOG_MSG_ERROR << "No GPU found!" << std::endl;
             throw std::runtime_error("failed to find GPUs with Vulkan support!");
         }
 
@@ -247,10 +246,10 @@ namespace PL
                     std::string res_str = std::string(req);
                     requiredExtensions.erase(req);
 
-                    RenderSubsystem::GLOBAL_LOGGER << LOG_MSG_INFO << 
-                                "Ext: " << res_str << " is available!\n";
-                    RenderSubsystem::GLOBAL_LOGGER << 
-                                "(" << str2 << ")" << std::endl;
+                    //RenderSubsystem::GLOBAL_LOGGER << LOG_MSG_INFO << 
+                    //            "Ext: " << res_str << " is available!\n";
+                    //RenderSubsystem::GLOBAL_LOGGER << 
+                    //            "(" << str2 << ")" << std::endl;
                     break;
                 }
             }

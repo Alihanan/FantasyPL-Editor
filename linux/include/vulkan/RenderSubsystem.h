@@ -2,6 +2,7 @@
 
 #include "../general/IUncopiable.h"
 #include "../general/IDependent.h"
+#include "../game/ModelDefines.h"
 
 #include "vWindow.h"
 #include "vDevice.h"
@@ -51,11 +52,17 @@ namespace PL
             return this->_DEP_ID;
         }
 
-        static LoggerSubsystem GLOBAL_LOGGER;
+        //static LoggerSubsystem GLOBAL_LOGGER;
         RenderSubsystem() {}
-
         ~RenderSubsystem();
-        void MainTick();
+
+        void registerRenderModels(std::vector<GameModel*>* toRender) {
+            if(toRender == nullptr) return;
+            this->renderer->UpdatePipelineModels(toRender);
+            
+        }
+
+        bool MainTick();
 
     protected:
         std::vector<vWindow*> windows;
@@ -65,7 +72,7 @@ namespace PL
 
         void Initialize();
 
-        inline static const LoggerType LOGGER_TYPE = (LOGGER_TYPE_STDOUT);
-        inline static const LoggerVerbosity LOGGER_VERBOSITY = LOGGER_VERB_ALL;
+        //inline static const LoggerType LOGGER_TYPE = (LOGGER_TYPE_STDOUT);
+        //inline static const LoggerVerbosity LOGGER_VERBOSITY = LOGGER_VERB_ALL;
     };
 }

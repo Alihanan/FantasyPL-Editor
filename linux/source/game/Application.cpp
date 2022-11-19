@@ -1,4 +1,6 @@
 #include "../../include/game/Application.h"
+#include "../../include/general/DependFactory.h"
+
 #include <ctime>
 
 namespace PL
@@ -17,7 +19,15 @@ namespace PL
         LoggerVerbosity verbos = std::any_cast<LoggerVerbosity>(this->gsettingsSS->GET(SETG_LOGGER_VERBOSITY));
         
         this->loggerSS = new LoggerSubsystem(type, verbos);
-        this->renderSS = new RenderSubsystem();
+        //this->renderSS = new RenderSubsystem(); // Warning, should be 
+        this->renderSS = static_cast<PL::RenderSubsystem*>(
+            PL::DependFactory::I()->createOrGetInstance(
+                PL::RenderSubsystem::_DEP_ID
+            )[0]
+        );
+
+
+        this->sceneGraphSS = new SceneGraphSubsystem();
     }
     void Application::MainLoop()
     {
@@ -34,17 +44,19 @@ namespace PL
 
             while (lag >= MS_PER_UPDATE)
             {
-                this->Update();
+                this->sceneGraphSS->Update();
                 lag -= MS_PER_UPDATE;
             }
 
-            this->renderSS->MainTick();
+            auto* allModels = this->sceneGraphSS->GetAllRenderObjects();
+            this->renderSS->registerRenderModels(allModels);
+            delete allModels;
+            bool isClosed = this->renderSS->MainTick();
+            if(!isClosed)
+            {
+                break;
+            }
         }
-    }
-
-    void Update()
-    {
-
     }
 
     void Application::processKey()

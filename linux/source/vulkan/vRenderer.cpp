@@ -1,6 +1,5 @@
 #include "../../include/vulkan/vRenderer.h"
 
-
 namespace PL
 {
     const std::string vRenderer::_DEP_ID = IDependent::type(vRenderer());
@@ -16,6 +15,11 @@ namespace PL
     void vRenderer::Initialize()
     {
         this->createCommandPools();
+    }
+
+    void vRenderer::UpdatePipelineModels(std::vector<GameModel*>* renderObjects)
+    {
+        this->manager->ReplaceRenderModels(renderObjects);
     }
 
     void vRenderer::MainRenderTick(vWindow* activeWindow)

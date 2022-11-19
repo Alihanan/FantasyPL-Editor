@@ -2,7 +2,7 @@
 
 #include "../../include/vulkan/vInstance.h"
 #include "../../include/vulkan/vWindow.h"
-#include "../../include/vulkan/vApplication.h"
+#include "../../include/vulkan/RenderSubsystem.h"
 #include "../../include/vulkan/vPhysicalDeviceHandler.h"
 #include "../../include/vulkan/vMemoryManager.h"
 #include "../../include/vulkan/vDevice.h"

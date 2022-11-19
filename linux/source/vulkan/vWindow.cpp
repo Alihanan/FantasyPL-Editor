@@ -1,5 +1,5 @@
 #include "../../include/vulkan/vWindow.h"
-#include "../../include/vulkan/vApplication.h"
+#include "../../include/vulkan/RenderSubsystem.h"
 
 namespace PL
 {
@@ -9,8 +9,8 @@ namespace PL
     {
         vkDestroySurfaceKHR(this->currentInstance->GetInstance(), this->khrSurface, nullptr);
         glfwDestroyWindow(this->glfwWindow);
-        RenderSubsystem::GLOBAL_LOGGER << LOG_MSG_INFO << "Window [" << 
-                    this->windowName << "] destroyed" << std::endl;
+        //RenderSubsystem::GLOBAL_LOGGER << LOG_MSG_INFO << "Window [" << 
+        //            this->windowName << "] destroyed" << std::endl;
     }
 
     void vWindow::Initialize()
@@ -29,8 +29,8 @@ namespace PL
             throw std::runtime_error("failed to create window surface!");
         }
 
-        RenderSubsystem::GLOBAL_LOGGER << LOG_MSG_INFO << "Window [" << 
-                    this->windowName << "] created" << std::endl;
+        //RenderSubsystem::GLOBAL_LOGGER << LOG_MSG_INFO << "Window [" << 
+        //            this->windowName << "] created" << std::endl;
     }
 
     void vWindow::MainAllWindowGLFWTick()
@@ -67,7 +67,7 @@ namespace PL
         int width = 0, height = 0;
         glfwGetFramebufferSize(this->glfwWindow, &width, &height);
         while (width == 0 || height == 0) {
-            RenderSubsystem::GLOBAL_LOGGER << LOG_MSG_INFO << "Window minimized!" << std::endl;
+            //RenderSubsystem::GLOBAL_LOGGER << LOG_MSG_INFO << "Window minimized!" << std::endl;
             glfwGetFramebufferSize(this->glfwWindow, &width, &height);
             glfwWaitEvents();
         }

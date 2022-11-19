@@ -17,6 +17,14 @@ namespace PL
                             *graphicsPipeline, nullptr);
         
     }
+    void vPipeline::SetModels(std::vector<std::pair<vModel*, GameModel*>>* changedModels)
+    {
+        auto* prev = this->models;
+        this->models = changedModels;
+        if(prev != nullptr) 
+            delete prev;
+    }
+    /*
     void vPipeline::AddModel(vModel* model)
     {
         if(model == nullptr) 
@@ -33,7 +41,7 @@ namespace PL
             this->models.erase(position);
         else
             throw std::runtime_error("Trying to delete model that is not in pipeline!");
-    }
+    }*/
     
     void vPipeline::RenderAll(VkCommandBuffer& currentBuffer)
     {
@@ -42,8 +50,9 @@ namespace PL
         // dynamic state pipeline
         this->SetDynamicStates(currentBuffer);
 
-        for(auto model : this->models)
+        for(auto [model, params] : *this->models)
         {
+            model->setParams(params);   
             model->bind(currentBuffer);
             model->setUniforms();
             this->shader->pushUBOS(currentBuffer);

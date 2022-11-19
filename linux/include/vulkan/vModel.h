@@ -1,10 +1,6 @@
 #pragma once
 
 #include "../general/IUncopiable.h"
-#pragma GCC diagnostic push
-#pragma GCC diagnostic ignored "-Wcpp"
-#include "../io/PseudoJson.h"
-#pragma GCC diagnostic pop
 #include "vMemoryManager.h"
 #include "vPipeConfig.h"
 #include "vShader.h"
@@ -20,7 +16,9 @@
 #include <glm/gtc/constants.hpp>
 
 #include <optional>
+#include <map>
 
+#include "../game/ModelDefines.h"
 
 namespace PL
 {
@@ -28,10 +26,14 @@ namespace PL
     
     class vModel : public IUncopiable
     {
+    protected:
+        inline static std::map<ModelTypeID, vModel*> activeModels = {};
     public:       
-        static vModel* createModelFactory(PJSON settings, vMemoryManager* manager, vShader* shader);
+        static vModel* createModelFactory(ModelTypeID type, vMemoryManager* manager, vShader* shader);
 
         virtual ~vModel();
+        virtual void setParams(GameModel* paramHolder);
+
         virtual void bind(VkCommandBuffer& comBuf);
         virtual void draw(VkCommandBuffer& comBuf);
         virtual void setUniforms();
@@ -48,7 +50,7 @@ namespace PL
         }
         vMemoryManager* memoryManager;
         vShader* shader;
-
+        
     private:
         vModel() {}
     };
@@ -81,6 +83,7 @@ namespace PL
         {
             
         }
+        virtual void setParams(GameModel* paramHolder) override;
         /**
          *   After constructor we should pass the settings from the JSON about height files
          */
