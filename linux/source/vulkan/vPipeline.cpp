@@ -12,18 +12,18 @@ namespace PL
     }
     vPipeline::~vPipeline()
     {
-        
         vkDestroyPipeline(this->device->GetReadyDevice()->logicalDevice,
                             *graphicsPipeline, nullptr);
         
     }
+    /*
     void vPipeline::SetModels(std::vector<std::pair<vModel*, GameModel*>>* changedModels)
     {
         auto* prev = this->models;
         this->models = changedModels;
         if(prev != nullptr) 
             delete prev;
-    }
+    }*/
     /*
     void vPipeline::AddModel(vModel* model)
     {
@@ -43,23 +43,17 @@ namespace PL
             throw std::runtime_error("Trying to delete model that is not in pipeline!");
     }*/
     
-    void vPipeline::RenderAll(VkCommandBuffer& currentBuffer)
+    void vPipeline::RenderModel(VkCommandBuffer& currentBuffer, vModel* model)
     {
         // fixed state pipeline
         vkCmdBindPipeline(currentBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, *graphicsPipeline);
         // dynamic state pipeline
         this->SetDynamicStates(currentBuffer);
-
-        for(auto [model, params] : *this->models)
-        {
-            model->setParams(params);   
-            model->bind(currentBuffer);
-            model->setUniforms();
-            this->shader->pushUBOS(currentBuffer);
-            model->draw(currentBuffer);
-        }
-
-        
+        // model stuff
+        model->bind(currentBuffer);
+        model->setUniforms();
+        this->shader->pushUBOS(currentBuffer);
+        model->draw(currentBuffer);        
     }
     
     void vPipeline::SetDynamicStates(VkCommandBuffer& commandBuffer)

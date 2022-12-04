@@ -1,6 +1,7 @@
 #pragma once
 
 #include "IGameObject.h"
+#include <iostream>
 
 namespace PL
 {
@@ -31,7 +32,11 @@ namespace PL
 
         virtual void OnUpdate()
         {
-
+            this->transform.translate(0.001f, 0.0f, 0.0f);
+            if(this->transform.tr_x() > 0.5f)
+            {
+                this->transform.set_position(0.1f, this->transform.tr_y(), 0.0f);
+            }
         }
         virtual void OnStart()
         {

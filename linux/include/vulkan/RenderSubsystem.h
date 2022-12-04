@@ -10,6 +10,8 @@
 
 namespace PL
 {   
+    class SceneGraphSubsystem;
+    
     class RenderSubsystem : public IUncopiable, public IDependent
     {
     public:
@@ -56,13 +58,8 @@ namespace PL
         RenderSubsystem() {}
         ~RenderSubsystem();
 
-        void registerRenderModels(std::vector<GameModel*>* toRender) {
-            if(toRender == nullptr) return;
-            this->renderer->UpdatePipelineModels(toRender);
-            
-        }
-
-        bool MainTick();
+        bool MainTick(SceneGraphSubsystem* sceneGraph);
+        void RenderSingleModel(GameModel* model);
 
     protected:
         std::vector<vWindow*> windows;
@@ -71,7 +68,7 @@ namespace PL
         vRenderer* renderer;
 
         void Initialize();
-
+        
         //inline static const LoggerType LOGGER_TYPE = (LOGGER_TYPE_STDOUT);
         //inline static const LoggerVerbosity LOGGER_VERBOSITY = LOGGER_VERB_ALL;
     };

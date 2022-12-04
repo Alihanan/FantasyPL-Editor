@@ -68,7 +68,7 @@ OUT=app
 .PHONY: all debug release run clean app
 all: debug clean_others
 
-debug:   CXXFLAGS += -ggdb
+debug:   CXXFLAGS += -ggdb3
 debug:   CCFLAGS += -g
 release: CXXFLAGS += -O2 -DNDEBUG
 debug release: application

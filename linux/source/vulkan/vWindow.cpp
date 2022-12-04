@@ -1,6 +1,8 @@
 #include "../../include/vulkan/vWindow.h"
 #include "../../include/vulkan/RenderSubsystem.h"
 
+#include <iostream> // TODO delete and replace by Logger
+
 namespace PL
 {
     const std::string vWindow::_DEP_ID = IDependent::type(new vWindow());

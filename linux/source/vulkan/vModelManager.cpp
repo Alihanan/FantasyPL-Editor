@@ -1,11 +1,4 @@
 #include "../../include/vulkan/vModelManager.h"
-
-#pragma GCC diagnostic push
-#pragma GCC diagnostic ignored "-Wcpp"
-#include "../../include/io/PseudoJson.h"
-#pragma GCC diagnostic pop
-
-
 #include "../../include/vulkan/vModel.h"
 #include "../../include/vulkan/vPipeline.h"
 
@@ -41,15 +34,7 @@ namespace PL
         }
     }
 
-    void vModelManager::setShader(std::string shaderName)
-    {
-        if(this->createdPipelines.find(shaderName) == this->createdPipelines.end())
-        {
-            this->pipeConfig->SetShaderName(shaderName);
-            this->createdPipelines[shaderName] = this->pipeConfig->GeneratePipeline();
-        }
-    }
-
+    /*
     void vModelManager::ReplaceRenderModels(std::vector<GameModel*>* models)
     {
         if(models == nullptr) return;
@@ -79,7 +64,7 @@ namespace PL
         {
             key->SetModels(toSend[key]);
         }
-    }
+    }*/
 
     /*
     void vModelManager::readAllModelsFromJSON(std::string jsonFileName)
@@ -108,6 +93,36 @@ namespace PL
         }
     }*/
 
+
+
+    vPipeline* vModelManager::GetOrCreateShaderPipeline(GameModel* gm)
+    {
+        std::string* shaderFile = static_cast<std::string*>(gm->Param(PARAM_SHADER_FILE));
+        if(this->createdPipelines.find(*shaderFile) == this->createdPipelines.end())
+        {
+            InputVertType* input_type = static_cast<InputVertType*>(gm->Param(PARAM_INPUT_VERT_TYPE));
+            this->setInputVertType(*input_type);
+
+            this->pipeConfig->SetShaderName(*shaderFile);
+
+            this->createdPipelines[*shaderFile] = this->pipeConfig->GeneratePipeline();
+        }
+
+        return this->createdPipelines[*shaderFile];
+    }
+    vModel* vModelManager::GetOrCreateModel(GameModel* gm, vPipeline* pipeline)
+    {
+        return vModel::createModelFactory(gm, this->memoryManager, pipeline->GetShader());
+    }
+    void vModelManager::RecordModelAndPipeline(GameModel* model, VkCommandBuffer& currentBuffer)
+    {
+        vPipeline* pipe = this->GetOrCreateShaderPipeline(model);
+        vModel* vmodel = this->GetOrCreateModel(model, pipe);
+        vmodel->setParams(model);  
+        pipe->RenderModel(currentBuffer, vmodel);
+    }
+
+    /*
     void vModelManager::readShaderInfo(PJSON settings)
     {
         std::string shaderName = settings["shader"].ToString();
@@ -127,17 +142,16 @@ namespace PL
             this->pipeConfig->SetShaderName(shaderName);
             this->createdPipelines[shaderName] = this->pipeConfig->GeneratePipeline();
         }
+    }*/
 
-    }
-
-    
+    /*
     void vModelManager::RecordAllPipelines(VkCommandBuffer& currentBuffer)
     {
         for(auto const& [key, value] : this->createdPipelines)
         {
             value->RenderAll(currentBuffer);
         }
-    }
+    }*/
 
     void vModelManager::Initialize()
     {

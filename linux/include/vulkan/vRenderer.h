@@ -34,8 +34,6 @@ namespace PL
             
         }
 
-        void UpdatePipelineModels(std::vector<GameModel*>* renderObjects);
-
         std::string GetDependencyID()
         {
             return this->_DEP_ID;
@@ -43,9 +41,16 @@ namespace PL
         
         // Other members
         ~vRenderer();
-        void MainRenderTick(vWindow* activeWindow);
+
+        void BeginFrame(vWindow* activeWindow);
+        void EndFrame(vWindow* activeWindow);
+        void RenderModel(GameModel* model);
+
+        //void MainRenderTick(vWindow* activeWindow);
 
     protected:
+        uint32_t curr_imageIndex;
+
         vModelManager* manager;
         vDevice* device;
         vSwapchain* swapchain;

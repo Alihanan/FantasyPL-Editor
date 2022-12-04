@@ -3,11 +3,17 @@
 
 #include <ctime>
 
+#include <iostream>
+
 namespace PL
 {
     Application::~Application()
     {
-
+        delete this->sceneGraphSS;
+        delete this->renderSS;
+        delete this->loggerSS;
+        delete this->inputSS;
+        delete this->gsettingsSS;
     }
 
     void Application::Initialize()
@@ -31,38 +37,35 @@ namespace PL
     }
     void Application::MainLoop()
     {
+        return;
         time_t previous = time(nullptr);
         double lag = 0.0;
+        static uint32_t i = 0;
         while(true)
         {
             time_t current = time(nullptr);
             double elapsed = difftime(current, previous);
             previous = current;
             lag += elapsed;
-
-            this->inputSS->ProcessInput();
-
+            
+            //this->inputSS->ProcessInput();
+            this->sceneGraphSS->Update();
+            /*
             while (lag >= MS_PER_UPDATE)
             {
+                this->inputSS->ProcessInput();
                 this->sceneGraphSS->Update();
                 lag -= MS_PER_UPDATE;
-            }
+            }*/
 
-            auto* allModels = this->sceneGraphSS->GetAllRenderObjects();
-            this->renderSS->registerRenderModels(allModels);
-            delete allModels;
-            bool isClosed = this->renderSS->MainTick();
+            bool isClosed = this->renderSS->MainTick(this->sceneGraphSS);
             if(!isClosed)
             {
                 break;
             }
+            i++;
+            if(i == 1000) break;
         }
     }
-
-    void Application::processKey()
-    {
-
-    }
-
 
 }

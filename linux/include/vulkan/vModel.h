@@ -27,9 +27,9 @@ namespace PL
     class vModel : public IUncopiable
     {
     protected:
-        inline static std::map<ModelTypeID, vModel*> activeModels = {};
+        inline static std::map<GameModel*, vModel*> activeModels = {};
     public:       
-        static vModel* createModelFactory(ModelTypeID type, vMemoryManager* manager, vShader* shader);
+        static vModel* createModelFactory(GameModel* type, vMemoryManager* manager, vShader* shader);
 
         virtual ~vModel();
         virtual void setParams(GameModel* paramHolder);
@@ -69,8 +69,8 @@ namespace PL
         
         uint32_t getNumberVertices() {return this->num_vertices;}
     protected:
-        std::string filename;
-        uint32_t num_vertices;
+        std::string filename = "";
+        uint32_t num_vertices = 0;
     };
 }
 namespace PL
@@ -87,20 +87,16 @@ namespace PL
         /**
          *   After constructor we should pass the settings from the JSON about height files
          */
-        void SetHeightMaps(std::vector<std::string> filenames);
+        void SetHeightMap(std::string filename);
         void SetResolution(uint32_t W, uint32_t H);
-        uint32_t getNumberVertices() {return this->current_res_W * this->current_res_H * quad_num * this->heightChunks.size();}
+        uint32_t getNumberVertices() {return this->current_res_W * this->current_res_H * quad_num;}
         vMemoryManager::Data processData();
         void setUniforms();
 
     protected:
-        struct HeightMapChunk
-        {
-            std::string dataFile = "";
-            uint32_t width_coord = 0;
-            uint32_t height_coord = 0;
-        };
-        std::vector<HeightMapChunk> heightChunks;
+        std::string dataFile = "";
+        uint32_t width_coord = 0;   // position in map ??? 
+        uint32_t height_coord = 0;  // position in map ???
 
         uint32_t quad_num = 6;
 

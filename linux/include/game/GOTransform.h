@@ -20,6 +20,7 @@ namespace PL
         {
             glm::mat4 ret = glm::mat4(1.0);
             ret = glm::translate(ret, {x, y, z});
+            
             //ret = glm::rotateX(ret, rotX);
             //ret = glm::rotateY(ret, rotY);
             //ret = glm::rotateZ(ret, rotZ);
@@ -33,6 +34,22 @@ namespace PL
             this->y += y;
             this->z += z;
         }
+
+        void set_position(float x, float y, float z)
+        {
+            this->x = x;
+            this->y = y;
+            this->z = z;
+        }
+
+        float tr_x() { return x;} 
+        float tr_y() { return y;} 
+        float tr_z() { return z;} 
+
+        float rot_x() { return rotX;} 
+        float rot_y() { return rotY;} 
+        float rot_z() { return rotZ;} 
+
 
     protected:
         float x {0.0f};

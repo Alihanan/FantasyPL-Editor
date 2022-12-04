@@ -55,7 +55,7 @@ namespace PL
         ~GameModel() {
             for(auto& [key, value] : this->params)
             {
-
+                //delete value;
             }
         }
 

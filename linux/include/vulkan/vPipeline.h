@@ -19,8 +19,9 @@ namespace PL
         vPipeline(VkPipeline* pipe, vShader* shader, vDevice* device, vSwapchain* swapchain);
         ~vPipeline();
         
-        void SetModels(std::vector<std::pair<vModel*, GameModel*>>* changedModels);
-        void RenderAll(VkCommandBuffer& currentBuffer);
+        //void SetModels(std::vector<std::pair<vModel*, GameModel*>>* changedModels);
+        //void RenderAll(VkCommandBuffer& currentBuffer);
+        void RenderModel(VkCommandBuffer& currentBuffer, vModel* model);
         vShader* GetShader() {return this->shader; }
 
         void SetViewport(float x, float y)
@@ -44,10 +45,7 @@ namespace PL
         vShader* shader;
         vDevice* device;
         vSwapchain* swapchain;
-        void Initialize();
-
-        std::vector<std::pair<vModel*, GameModel*>>* models = nullptr;
-        
+        void Initialize();        
 
         VkViewport viewport{};
         VkRect2D scissor{};

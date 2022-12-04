@@ -5,10 +5,6 @@
 
 #include "vMemoryManager.h"
 #include "vPipeConfig.h"
-#pragma GCC diagnostic push
-#pragma GCC diagnostic ignored "-Wcpp"
-#include "../io/PseudoJson.h"
-#pragma GCC diagnostic pop
 
 #include <optional>
 #include "../game/ModelDefines.h"
@@ -48,20 +44,26 @@ namespace PL
         ~vModelManager();
         //void readAllModelsFromJSON(std::string jsonFileName);
 
-        void ReplaceRenderModels(std::vector<GameModel*>* models);
+        //void ReplaceRenderModels(std::vector<GameModel*>* models);
 
-        void RecordAllPipelines(VkCommandBuffer& currentBuffer);
+        //void RecordAllPipelines(VkCommandBuffer& currentBuffer);
+
+
+        vPipeline* GetOrCreateShaderPipeline(GameModel* gm);
+        vModel* GetOrCreateModel(GameModel* gm, vPipeline* pipeline);
+
+        void RecordModelAndPipeline(GameModel* model, VkCommandBuffer& currentBuffer);
 
     protected:
         vMemoryManager* memoryManager;
         vPipeConfig* pipeConfig;
 
         void Initialize();
-        void readShaderInfo(PJSON settings);
+        //void readShaderInfo(PJSON settings);
 
 
         void setInputVertType(InputVertType type);
-        void setShader(std::string shaderName);
+        //void setShader(std::string shaderName);
 
         std::map<std::string, vPipeline*> createdPipelines;
 

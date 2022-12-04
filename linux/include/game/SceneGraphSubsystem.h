@@ -1,6 +1,7 @@
 #pragma once
 
 #include "../general/IUncopiable.h"
+#include "../vulkan/RenderSubsystem.h"
 #include "IGameObject.h"
 #include "SceneGO.h"
 #include "ModelDefines.h"
@@ -27,7 +28,7 @@ namespace PL
 
         void CreateGameObject(std::string type)
         {
-            
+            // TODO
         }
 
         void Update()
@@ -35,11 +36,9 @@ namespace PL
             this->UpdateGO(this->sceneGameObject);
         }
 
-        std::vector<GameModel*>* GetAllRenderObjects()
+        void RenderAll(RenderSubsystem* renderer)
         {
-            auto* allModels = new std::vector<GameModel*>();
-            this->sceneGameObject->GetModel(allModels);
-            return allModels;
+            this->sceneGameObject->Render(renderer);
         }
 
 

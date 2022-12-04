@@ -17,37 +17,33 @@ namespace PL
         this->createCommandPools();
     }
 
-    void vRenderer::UpdatePipelineModels(std::vector<GameModel*>* renderObjects)
+    void vRenderer::RenderModel(GameModel* model)
     {
-        this->manager->ReplaceRenderModels(renderObjects);
+        this->manager->RecordModelAndPipeline(model, this->commandBuffers[currentFrameIndex]);
     }
 
-    void vRenderer::MainRenderTick(vWindow* activeWindow)
+    void vRenderer::BeginFrame(vWindow* activeWindow)
     {
         // 1. Acquire + 2. Check resize
-        uint32_t imageIndex;
-        bool result = this->swapchain->AcquireImage(&imageIndex);
+        bool result = this->swapchain->AcquireImage(&this->curr_imageIndex);
         if (!result) {
+            BeginFrame(activeWindow);
             return;
         } 
 
         // 3. Record pipelines
         this->recreateCommandBuffers(swapchain->GetImageCount());
-        this->BeginRecordCommandBuffer(imageIndex);
-        this->manager->RecordAllPipelines(this->commandBuffers[currentFrameIndex]);
-        this->EndRecordCommandBuffer(imageIndex);
+        this->BeginRecordCommandBuffer(this->curr_imageIndex);
+    }
+    void vRenderer::EndFrame(vWindow* activeWindow)
+    {
+        this->EndRecordCommandBuffer(this->curr_imageIndex);
 
         // 4. Submit + 5. Present
-        bool ret = this->swapchain->SubmitCommandBuffers(&this->commandBuffers[currentFrameIndex], &imageIndex);     
-        currentFrameIndex = (currentFrameIndex + 1) % vSwapchain::MAX_FRAMES_IN_FLIGHT;     
-
-        if(!ret)
-        {
-            return;
-        }
-
-             
+        bool ret = this->swapchain->SubmitCommandBuffers(&this->commandBuffers[currentFrameIndex], &this->curr_imageIndex);     
+        currentFrameIndex = (currentFrameIndex + 1) % vSwapchain::MAX_FRAMES_IN_FLIGHT; 
     }
+
 
     void vRenderer::ResizeSwapchain()
     {

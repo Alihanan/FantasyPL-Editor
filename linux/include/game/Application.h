@@ -20,7 +20,6 @@ namespace PL
         void Initialize();
         void MainLoop();
         void Update();
-        void processKey();
 
     protected:
         GlobalSettingsSubsystem* gsettingsSS;

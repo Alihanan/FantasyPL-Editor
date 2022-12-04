@@ -3,6 +3,7 @@
 
 #include "../general/IUncopiable.h"
 #include "../io/InputSubsystem.h"
+#include "../vulkan/RenderSubsystem.h"
 #include "ModelDefines.h"
 #include "GOTransform.h"
 #include <vector>
@@ -30,20 +31,20 @@ namespace PL
         IGameObject &operator=(IGameObject &&) = default;
         std::vector<IGameObject*> GetChildrenGO() { return this->children; }
 
-        virtual void GetModel(std::vector<GameModel*>* total_render_vector) final{
+        bool ShouldRender() { return true; }        
+        GOTransform& GetTransform() { return transform;}
+
+        virtual void Render(RenderSubsystem* renderer) final
+        {
             for(GameModel* gm : this->renderModels)
             {
-                total_render_vector->push_back(gm);
+                renderer->RenderSingleModel(gm);
             }
-            
             for(IGameObject* children : this->children)
             {
-                children->GetModel(total_render_vector);
+                children->Render(renderer);
             }
         }
-
-        bool ShouldRender() { return true; }        
-        GOTransform& transf() { return transform;}
 
     protected:
         GOTransform transform {};
